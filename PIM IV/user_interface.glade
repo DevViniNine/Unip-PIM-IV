@@ -111,6 +111,9 @@
               <object class="GtkBox">
                 <property name="visible">True</property>
                 <property name="can-focus">False</property>
+                <property name="halign">center</property>
+                <property name="valign">center</property>
+                <property name="spacing">15</property>
                 <child>
                   <object class="GtkButton" id="botao_login">
                     <property name="label" translatable="yes">Login</property>
@@ -159,6 +162,19 @@
               </packing>
             </child>
             <child>
+              <object class="GtkLabel" id="label_mensagem">
+                <property name="visible">True</property>
+                <property name="can-focus">False</property>
+                <property name="ypad">10</property>
+              </object>
+              <packing>
+                <property name="expand">False</property>
+                <property name="fill">True</property>
+                <property name="padding">2</property>
+                <property name="position">6</property>
+              </packing>
+            </child>
+            <child>
               <object class="GtkLabel">
                 <property name="visible">True</property>
                 <property name="can-focus">False</property>
@@ -168,7 +184,7 @@
               <packing>
                 <property name="expand">False</property>
                 <property name="fill">True</property>
-                <property name="position">6</property>
+                <property name="position">7</property>
               </packing>
             </child>
           </object>
@@ -638,7 +654,7 @@
           </packing>
         </child>
         <child>
-          <object class="GtkBox">
+          <object class="GtkBox" id="view_cadastro_usuario">
             <property name="visible">True</property>
             <property name="can-focus">False</property>
             <property name="orientation">vertical</property>
@@ -646,11 +662,14 @@
               <object class="GtkBox">
                 <property name="visible">True</property>
                 <property name="can-focus">False</property>
+                <property name="halign">center</property>
+                <property name="valign">center</property>
                 <child>
                   <object class="GtkImage">
                     <property name="visible">True</property>
                     <property name="can-focus">False</property>
-                    <property name="stock">gtk-missing-image</property>
+                    <property name="pixel-size">60</property>
+                    <property name="icon-name">contact-new-symbolic</property>
                   </object>
                   <packing>
                     <property name="expand">False</property>
@@ -662,7 +681,11 @@
                   <object class="GtkLabel">
                     <property name="visible">True</property>
                     <property name="can-focus">False</property>
-                    <property name="label" translatable="yes">label</property>
+                    <property name="label" translatable="yes">Cadastro de usúario</property>
+                    <attributes>
+                      <attribute name="weight" value="bold"/>
+                      <attribute name="scale" value="2"/>
+                    </attributes>
                   </object>
                   <packing>
                     <property name="expand">False</property>
@@ -678,9 +701,12 @@
               </packing>
             </child>
             <child>
-              <object class="GtkEntry">
+              <object class="GtkEntry" id="cadastro_usuario_entry">
                 <property name="visible">True</property>
                 <property name="can-focus">True</property>
+                <property name="halign">center</property>
+                <property name="valign">center</property>
+                <property name="placeholder-text" translatable="yes">Usuario</property>
               </object>
               <packing>
                 <property name="expand">False</property>
@@ -689,14 +715,62 @@
               </packing>
             </child>
             <child>
-              <object class="GtkEntry">
+              <object class="GtkEntry" id="senha_cadastro_entry">
                 <property name="visible">True</property>
                 <property name="can-focus">True</property>
+                <property name="halign">center</property>
+                <property name="valign">center</property>
+                <property name="placeholder-text" translatable="yes">Senha</property>
               </object>
               <packing>
                 <property name="expand">False</property>
                 <property name="fill">True</property>
                 <property name="position">2</property>
+              </packing>
+            </child>
+            <child>
+              <object class="GtkBox">
+                <property name="visible">True</property>
+                <property name="can-focus">False</property>
+                <property name="halign">center</property>
+                <property name="valign">center</property>
+                <property name="margin-start">20</property>
+                <property name="margin-end">20</property>
+                <property name="margin-top">20</property>
+                <property name="margin-bottom">20</property>
+                <property name="spacing">20</property>
+                <child>
+                  <object class="GtkButton" id="confirma_cadastro_usuario">
+                    <property name="label" translatable="yes">Cadastrar</property>
+                    <property name="visible">True</property>
+                    <property name="can-focus">True</property>
+                    <property name="receives-default">True</property>
+                    <signal name="clicked" handler="on_confirma_cadastro_usuario_clicked" swapped="no"/>
+                  </object>
+                  <packing>
+                    <property name="expand">False</property>
+                    <property name="fill">True</property>
+                    <property name="position">0</property>
+                  </packing>
+                </child>
+                <child>
+                  <object class="GtkButton">
+                    <property name="label" translatable="yes">Cancelar</property>
+                    <property name="visible">True</property>
+                    <property name="can-focus">True</property>
+                    <property name="receives-default">True</property>
+                  </object>
+                  <packing>
+                    <property name="expand">False</property>
+                    <property name="fill">True</property>
+                    <property name="position">1</property>
+                  </packing>
+                </child>
+              </object>
+              <packing>
+                <property name="expand">False</property>
+                <property name="fill">True</property>
+                <property name="position">3</property>
               </packing>
             </child>
           </object>
