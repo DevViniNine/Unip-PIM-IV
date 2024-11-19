@@ -451,12 +451,12 @@
                 <property name="valign">center</property>
                 <property name="spacing">30</property>
                 <child>
-                  <object class="GtkButton" id="pesquisa">
+                  <object class="GtkButton" id="buscar_atualizar">
                     <property name="label" translatable="yes">Buscar</property>
                     <property name="visible">True</property>
                     <property name="can-focus">True</property>
                     <property name="receives-default">True</property>
-                    <signal name="clicked" handler="on_pesquisa_clicked" swapped="no"/>
+                    <signal name="clicked" handler="on_buscar_atualizar_clicked" swapped="no"/>
                   </object>
                   <packing>
                     <property name="expand">False</property>
@@ -1181,7 +1181,7 @@
                   <object class="GtkTreeSelection"/>
                 </child>
                 <child>
-                  <object class="GtkTreeViewColumn" id="pesquisa_nome">
+                  <object class="GtkTreeViewColumn">
                     <property name="title" translatable="yes">Nome da industria</property>
                     <child>
                       <object class="GtkCellRendererText"/>
