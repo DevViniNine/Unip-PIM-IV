@@ -17,7 +17,7 @@
         <property name="visible">True</property>
         <property name="can-focus">True</property>
         <child>
-          <object class="GtkBox">
+          <object class="GtkBox" id="view_login">
             <property name="visible">True</property>
             <property name="can-focus">False</property>
             <property name="halign">center</property>
@@ -119,8 +119,6 @@
                     <property name="visible">True</property>
                     <property name="can-focus">True</property>
                     <property name="receives-default">True</property>
-                    <property name="margin-left">5</property>
-                    <property name="margin-right">5</property>
                     <property name="margin-start">5</property>
                     <property name="margin-end">5</property>
                     <property name="margin-top">5</property>
@@ -141,8 +139,6 @@
                     <property name="visible">True</property>
                     <property name="can-focus">True</property>
                     <property name="receives-default">True</property>
-                    <property name="margin-left">5</property>
-                    <property name="margin-right">5</property>
                     <property name="margin-start">5</property>
                     <property name="margin-end">5</property>
                     <property name="margin-top">5</property>
@@ -182,7 +178,7 @@
           </packing>
         </child>
         <child>
-          <object class="GtkBox">
+          <object class="GtkBox" id="view_menu_principal">
             <property name="visible">True</property>
             <property name="can-focus">False</property>
             <property name="halign">center</property>
@@ -250,8 +246,8 @@
                   </packing>
                 </child>
                 <child>
-                  <object class="GtkButton" id="atualizar_residuos">
-                    <property name="label" translatable="yes">Atualizar Residuos</property>
+                  <object class="GtkButton" id="atualizacao_mensal">
+                    <property name="label" translatable="yes">Atualização mensal</property>
                     <property name="visible">True</property>
                     <property name="can-focus">True</property>
                     <property name="receives-default">True</property>
@@ -359,13 +355,13 @@
             </child>
           </object>
           <packing>
-            <property name="name">page0</property>
-            <property name="title" translatable="yes">page0</property>
+            <property name="name">view_menu_principal</property>
+            <property name="title" translatable="yes">page1</property>
             <property name="position">1</property>
           </packing>
         </child>
         <child>
-          <object class="GtkBox">
+          <object class="GtkBox" id="view_cadastro_industria">
             <property name="visible">True</property>
             <property name="can-focus">False</property>
             <property name="halign">center</property>
@@ -636,8 +632,8 @@
             </child>
           </object>
           <packing>
-            <property name="name">page1</property>
-            <property name="title" translatable="yes">page1</property>
+            <property name="name">view_cadastro_industria</property>
+            <property name="title" translatable="yes">page2</property>
             <property name="position">2</property>
           </packing>
         </child>

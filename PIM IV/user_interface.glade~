@@ -250,8 +250,8 @@
                   </packing>
                 </child>
                 <child>
-                  <object class="GtkButton" id="atualizar_residuos">
-                    <property name="label" translatable="yes">Atualizar Residuos</property>
+                  <object class="GtkButton" id="atualizacao_mensal">
+                    <property name="label" translatable="yes">Atualização mensal</property>
                     <property name="visible">True</property>
                     <property name="can-focus">True</property>
                     <property name="receives-default">True</property>
