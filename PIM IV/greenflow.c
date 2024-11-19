@@ -42,6 +42,13 @@ void salvar_dados(const char *usuario, const char *senha) {
     fclose(file);  // Fechando o arquivo
     gtk_label_set_text(GTK_LABEL(label_mensagem), "Usuário cadastrado com sucesso!");
 }
+// Função para inserir o usuário admin com senha admin
+void inserir_usuario_admin() {
+    const char *usuario = "admin";   // Nome do usuário
+    const char *senha = "admin";     // Senha do usuário
+
+    salvar_dados(usuario, senha);  // Chama a função para salvar no arquivo
+}
 
 
 // Função de leitura dos dados do arquivo (exemplo de como ler)
@@ -59,6 +66,7 @@ void ler_dados() {
 
     fclose(file);  // Fechando o arquivo
 }
+
 
 
 // Função de verificação de login
@@ -179,6 +187,7 @@ void on_botao_cancelar_industria_clicked(GtkWidget *widget, gpointer data){
 int main(int argc, char *argv[]){
     gtk_init(&argc, &argv);
     GtkBuilder *builder = gtk_builder_new_from_file("user_interface.glade");
+     inserir_usuario_admin();
 
     gtk_builder_add_callback_symbols(builder,
 
