@@ -1,8 +1,9 @@
 # depslib dependency file v1.0
-1732071947 source:c:\users\vinic\desktop\unip-pim-iv\pim iv\greenflow.c
+1732110741 source:c:\users\vinic\desktop\unip-pim-iv\pim iv\greenflow.c
 	<stdio.h>
 	<string.h>
 	<stdlib.h>
+	<ctype.h>
 
 1720679023 c:\msys64\ucrt64\include\gtk-3.0\gtk\gtk.h
 	<gdk/gdk.h>
@@ -3299,4 +3300,7 @@
 1732046277 source:c:\unip-pim-iv\pim iv\greenflow.c
 	<stdio.h>
 	<string.h>
+
+1731522933 c:\msys64\ucrt64\include\ctype.h
+	<crtdefs.h>
 
