@@ -4,33 +4,31 @@
 	<ActiveTarget name="Debug" />
 	<File name="user_interface.glade" open="1" top="0" tabpos="2" split="0" active="1" splitpos="0" zoom_1="1" zoom_2="0">
 		<Cursor>
-			<Cursor1 position="85404" topLine="1771" />
+			<Cursor1 position="85346" topLine="1771" />
 		</Cursor>
 	</File>
 	<File name="greenflow.c" open="1" top="1" tabpos="1" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
 		<Cursor>
-			<Cursor1 position="10728" topLine="78" />
+			<Cursor1 position="5553" topLine="24" />
 		</Cursor>
 		<Folding>
-			<Collapse line="8" />
-			<Collapse line="16" />
-			<Collapse line="23" />
-			<Collapse line="32" />
-			<Collapse line="41" />
-			<Collapse line="46" />
-			<Collapse line="62" />
-			<Collapse line="71" />
-			<Collapse line="88" />
-			<Collapse line="98" />
-			<Collapse line="113" />
-			<Collapse line="131" />
-			<Collapse line="153" />
-			<Collapse line="159" />
-			<Collapse line="165" />
-			<Collapse line="172" />
-			<Collapse line="179" />
-			<Collapse line="221" />
-			<Collapse line="226" />
+			<Collapse line="6" />
+			<Collapse line="14" />
+			<Collapse line="21" />
+			<Collapse line="30" />
+			<Collapse line="39" />
+			<Collapse line="44" />
+			<Collapse line="60" />
+			<Collapse line="69" />
+			<Collapse line="86" />
+			<Collapse line="96" />
+			<Collapse line="111" />
+			<Collapse line="152" />
+			<Collapse line="158" />
+			<Collapse line="164" />
+			<Collapse line="171" />
+			<Collapse line="220" />
+			<Collapse line="225" />
 		</Folding>
 	</File>
 </CodeBlocks_layout_file>

@@ -1,8 +1,7 @@
 # depslib dependency file v1.0
-1731981114 source:c:\users\vinic\desktop\unip-pim-iv\pim iv\greenflow.c
-	<stdlib.h>
+1732061916 source:c:\users\vinic\desktop\unip-pim-iv\pim iv\greenflow.c
+	<stdio.h>
 	<string.h>
-	<openssl/md5.h>
 
 1720679023 c:\msys64\ucrt64\include\gtk-3.0\gtk\gtk.h
 	<gdk/gdk.h>

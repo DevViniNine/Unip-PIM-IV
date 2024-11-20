@@ -1,8 +1,6 @@
 ﻿#include <gtk/gtk.h>
 #include <stdio.h>
 #include <string.h>
-GList* gtk_stack_list_children(GtkStack *stack);
-const gchar* gtk_stack_get_child_name(GtkStack *stack, GtkWidget *child);
 
 
 // Função para criptografar uma senha simples
@@ -143,6 +141,7 @@ void on_botao_login_clicked(GtkButton *button, gpointer user_data) {
     if (verificar_login(usuario, senha)) {
         if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(check_lembrar))) {
             salvar_ultimo_usuario(usuario);
+        gtk_entry_set_text(GTK_ENTRY(entry_senha), "");
         }
         gtk_stack_set_visible_child_name(stack, "view_menu_principal");
     } else {
@@ -166,7 +165,7 @@ void on_botao_voltar_atualizacao_clicked(GtkButton *button, gpointer user_data) 
 void on_atualizacao_de_residuos_clicked(GtkButton *button, gpointer user_data) {
     GtkBuilder *builder = GTK_BUILDER(user_data);
     GtkStack *stack = GTK_STACK(gtk_builder_get_object(builder, "stack"));
-    gtk_stack_set_visible_child_name(stack, "view_atualizar_residuos");
+    gtk_stack_set_visible_child_name(stack, "view_atualizar_selecionado");
 }
 
 // Callback para o botão de cadastro de usuário
@@ -249,29 +248,11 @@ void on_selecionar_pesquisa_clicked(GtkButton *button, gpointer user_data) {
 }
 //--------------------CALLBAKC PARA BOTAO ATUALIZAR DA VIEW--------------------//
 
-void on_atualizar_residuos_tratados_clicked(GtkButton *button, gpointer user_data) {
-    g_print("botao funcionando");
-}
 
 
 //------------------------------------------------------------DEPURAÇÃO-----------
 
-const gchar* obter_nome_do_child(GtkStack *stack, GtkWidget *child) {
-    GList *children = gtk_stack_list_children(stack);
-    GList *node = children;
-    const gchar *name = NULL;
 
-    while (node) {
-        if (GTK_WIDGET(node->data) == child) {
-            name = gtk_widget_get_name(child);
-            break;
-        }
-        node = node->next;
-    }
-
-    g_list_free(children);
-    return name;
-}
 
 
 //--------------------------------------------------------------------------------
@@ -390,9 +371,9 @@ int main(int argc, char *argv[]) {
         "on_botao_sair_clicked", G_CALLBACK(on_botao_sair_clicked),
         "on_atualizacao_de_residuos_clicked", G_CALLBACK(on_atualizacao_de_residuos_clicked),
         "on_botao_voltar_atualizacao_clicked",G_CALLBACK(on_botao_voltar_atualizacao_clicked),
-                                     "on_buscar_atualizar_clicked",G_CALLBACK(on_buscar_atualizar_clicked),
-                                     "on_selecionar_pesquisa_clicked",G_CALLBACK(on_selecionar_pesquisa_clicked),
-                                     "on_atualizar_residuos_tratados_clicked",G_CALLBACK(on_atualizar_residuos_tratados_clicked),
+        "on_buscar_atualizar_clicked",G_CALLBACK(on_buscar_atualizar_clicked),
+        "on_selecionar_pesquisa_clicked",G_CALLBACK(on_selecionar_pesquisa_clicked),
+        "on_atualizacao_de_residuos_clicked",G_CALLBACK(on_atualizacao_de_residuos_clicked),
 
 
 

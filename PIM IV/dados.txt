@@ -1,18 +1,1 @@
-UsuÃ¡rio: admin
-Senha: ËÎÇÃÄ
------------------------------
-admin dgplq
-teste whvwh
-teste whvwh
-teste whvwh
-teste2 whvwh5
-pax clinica 01250414000131 pax clinica pax clinica 62991127487 pax@pax.com 19/06/2000 br 153 aparecida de goiania GO
-teste whvwh
-teste whvwh
-teste whvwh
-teste whvwh
-teste whvwh
-teste whvwh
-ser vhu
-123 456
-1234 32165498712345 1234 123412341234 12345678910 123@123.123 12/12/2343 1234 1234 2143
+admin 456
