@@ -68,8 +68,19 @@ int validar_cep(const char *cep) {
     return 1; // CEP válido
 }
 
-
-
+void salvar_industria(const char *nome_empresa, const char *cnpj, const char *razao_social,
+                      const char *nome_fantasia, const char *telefone, const char *email,
+                      const char *data_abertura, const char *endereco, const char *cidade,
+                      const char *estado, const char *cep) {
+    FILE *arquivo = fopen("dados.txt", "a");
+    if (arquivo) {
+        fprintf(arquivo, "%s %s %s %s %s %s %s %s %s %s\n", nome_empresa, cnpj, razao_social, nome_fantasia,
+                telefone, email, data_abertura, endereco, cidade, estado, cep);
+        fclose(arquivo);
+    } else {
+        g_print("Erro ao abrir arquivo para salvar a indústria!\n");
+    }
+}
 
 
 //----------------------------------------------------------------------------------------------------------------------------
@@ -99,7 +110,7 @@ void carregar_ultimo_usuario(GtkEntry *entry_usuario) {
 
 //----------------------------------------------------------------------------------------------------------------------------
 // Verificar login
-/*int verificar_login(const char *usuario, const char *senha) {
+int verificar_login(const char *usuario, const char *senha) {
     FILE *arquivo = fopen("dados.txt", "r");
     if (!arquivo) return 0;
 
@@ -114,29 +125,7 @@ void carregar_ultimo_usuario(GtkEntry *entry_usuario) {
     }
     fclose(arquivo);
     return 0; // Falha no login
-}*/
-int verificar_login(const char *usuario, const char *senha) {
-    FILE *arquivo = fopen("usuarios.csv", "r");
-    if (!arquivo) return 0;
-
-    char linha[256], usuario_lido[100], senha_lida[100], senha_descriptografada[100];
-    while (fgets(linha, sizeof(linha), arquivo)) {
-        // Parse da linha no formato CSV, considerando que os valores estão entre aspas
-        sscanf(linha, "\"%[^\"]\",\"%[^\"]\"", usuario_lido, senha_lida);
-
-        // Descriptografar a senha lida
-        descriptografar_senha(senha_lida, senha_descriptografada);
-
-        // Verificar se o usuário e a senha correspondem
-        if (strcmp(usuario, usuario_lido) == 0 && strcmp(senha, senha_descriptografada) == 0) {
-            fclose(arquivo);
-            return 1; // Login bem-sucedido
-        }
-    }
-    fclose(arquivo);
-    return 0; // Falha no login
 }
-
 
 // Callback para o botão de login
 void on_botao_login_clicked(GtkButton *button, gpointer user_data) {
@@ -168,6 +157,11 @@ void on_menu_sair_clicked(GtkButton *button, gpointer user_data) {
     gtk_stack_set_visible_child_name(stack, "view_login");
 }
 
+void on_botao_voltar_atualizacao_clicked(GtkButton *button, gpointer user_data) {
+    GtkBuilder *builder = GTK_BUILDER(user_data);
+    GtkStack *stack = GTK_STACK(gtk_builder_get_object(builder, "stack"));
+    gtk_stack_set_visible_child_name(stack, "view_menu_principal");
+}
 
 void on_atualizacao_de_residuos_clicked(GtkButton *button, gpointer user_data) {
     GtkBuilder *builder = GTK_BUILDER(user_data);
@@ -183,7 +177,7 @@ void on_cadastro_usuario_clicked(GtkButton *button, gpointer user_data) {
 }
 
 // Callback para o botão de confirmar cadastro
-/*void on_confirma_cadastro_usuario_clicked(GtkButton *button, gpointer user_data) {
+void on_confirma_cadastro_usuario_clicked(GtkButton *button, gpointer user_data) {
     GtkBuilder *builder = GTK_BUILDER(user_data);
     GtkWidget *entry_usuario = GTK_WIDGET(gtk_builder_get_object(builder, "cadastro_usuario_entry"));
     GtkWidget *entry_senha = GTK_WIDGET(gtk_builder_get_object(builder, "senha_cadastro_entry"));
@@ -220,45 +214,7 @@ void on_cadastro_usuario_clicked(GtkButton *button, gpointer user_data) {
         // Caso o arquivo não possa ser aberto, informar o erro na label
         gtk_label_set_text(GTK_LABEL(label_cadastro_usuario), "Erro ao salvar os dados.");
     }
-}*/
-void on_confirma_cadastro_usuario_clicked(GtkButton *button, gpointer user_data) {
-    GtkBuilder *builder = GTK_BUILDER(user_data);
-    GtkWidget *entry_usuario = GTK_WIDGET(gtk_builder_get_object(builder, "cadastro_usuario_entry"));
-    GtkWidget *entry_senha = GTK_WIDGET(gtk_builder_get_object(builder, "senha_cadastro_entry"));
-    GtkWidget *label_cadastro_usuario = GTK_WIDGET(gtk_builder_get_object(builder, "label_cadastro_usuario"));
-    GtkStack *stack = GTK_STACK(gtk_builder_get_object(builder, "stack"));
-
-    const char *usuario = gtk_entry_get_text(GTK_ENTRY(entry_usuario));
-    const char *senha = gtk_entry_get_text(GTK_ENTRY(entry_senha));
-
-    // Verificar se os campos de usuário ou senha estão vazios
-    if (strlen(usuario) == 0 || strlen(senha) == 0) {
-        gtk_label_set_text(GTK_LABEL(label_cadastro_usuario), "Usuário ou senha não podem ser vazios!");
-        return;
-    }
-
-    char senha_criptografada[100];
-    criptografar_senha(senha, senha_criptografada);
-
-    // Tentar abrir o arquivo CSV para salvar os dados
-    FILE *arquivo = fopen("usuarios.csv", "a");
-    if (arquivo) {
-        // Salvar os dados no formato CSV
-        fprintf(arquivo, "\"%s\",\"%s\"\n", usuario, senha_criptografada);
-        fclose(arquivo);
-
-        // Atualizar a label para informar sucesso
-        gtk_label_set_text(GTK_LABEL(label_cadastro_usuario), "Cadastro realizado com sucesso!");
-
-        // Limpar os campos de usuário e senha
-        gtk_entry_set_text(GTK_ENTRY(entry_usuario), "");
-        gtk_entry_set_text(GTK_ENTRY(entry_senha), "");
-    } else {
-        // Caso o arquivo não possa ser aberto, informar o erro na label
-        gtk_label_set_text(GTK_LABEL(label_cadastro_usuario), "Erro ao salvar os dados.");
-    }
 }
-
 
 
 
@@ -283,20 +239,17 @@ void on_botao_sair_clicked(GtkButton *button, gpointer user_data) {
         ////////////////////////////FUNCAO PARA BUSCA DA EMPRESA NO ARQUIVO//////////////////////
         // Função para procurar uma indústria no banco de dados
 gboolean buscar_industria(const char *termo, char *nome_industria, char *custos, char *residuos) {
-    FILE *arquivo = fopen("industrias.csv", "r");
+    FILE *arquivo = fopen("dados.txt", "r");
     if (!arquivo) return FALSE;
 
     char linha[256];
     while (fgets(linha, sizeof(linha), arquivo)) {
-        char cnpj[20], razao_social[100], email[100], custos_atual[20], residuos_atual[20];
+        char cnpj[20], razao_social[100], email[100], custo_atual[20], residuos_atual[20];
+        sscanf(linha, "%s %s %s %s %s", cnpj, razao_social, email, custo_atual, residuos_atual);
 
-        // Aqui estamos tratando as colunas corretamente, com base nas aspas
-        sscanf(linha, "\"%[^\"]\",\"%[^\"]\",\"%[^\"]\",\"%[^\"]\",\"%[^\"]\"", razao_social, cnpj, email, custos_atual, residuos_atual);
-
-        // Agora vamos verificar se o termo corresponde ao CNPJ ou Razão Social
         if (strstr(cnpj, termo) || strstr(razao_social, termo)) {
-            strcpy(nome_industria, razao_social);  // Armazena a razão social
-            strcpy(custos, custos_atual);
+            strcpy(nome_industria, razao_social);
+            strcpy(custos, custo_atual);
             strcpy(residuos, residuos_atual);
             fclose(arquivo);
             return TRUE;
@@ -306,9 +259,6 @@ gboolean buscar_industria(const char *termo, char *nome_industria, char *custos,
     fclose(arquivo);
     return FALSE;
 }
-
-
-
 
 
             //----------------CALLBACK PARA BOTAO BUSCAR------------------//
@@ -326,24 +276,20 @@ void on_buscar_atualizar_clicked(GtkButton *button, gpointer user_data) {
     char residuos[20] = {0};
 
     if (buscar_industria(termo, nome_industria, custos, residuos)) {
-        GtkEntry *entry_industria = GTK_ENTRY(gtk_builder_get_object(builder, "industria_selecionada"));
+        // Atualiza a próxima view com os dados encontrados
+        GtkLabel *label_industria = GTK_LABEL(gtk_builder_get_object(builder, "industria_selecionada"));
         GtkLabel *label_custos = GTK_LABEL(gtk_builder_get_object(builder, "custo_atual_atualizar"));
         GtkLabel *label_residuos = GTK_LABEL(gtk_builder_get_object(builder, "residuos_atual_atualizar"));
 
-        // Exibe a razão social na Entry
-        gtk_entry_set_text(entry_industria, nome_industria);
-
-        // Exibe os custos e resíduos
-        gtk_label_set_text(label_custos, strlen(custos) == 0 ? "Não informado" : custos);
-        gtk_label_set_text(label_residuos, strlen(residuos) == 0 ? "Não informado" : residuos);
+        gtk_label_set_text(label_industria, nome_industria);
+        gtk_label_set_text(label_custos, custos);
+        gtk_label_set_text(label_residuos, residuos);
 
         gtk_stack_set_visible_child_name(stack, "view_atualizar_selecionado");
     } else {
-        gtk_label_set_text(label_info, "Indústria não encontrada, Pesquise pela Razao Social ou CNPJ.");
+        gtk_label_set_text(label_info, "Indústria não encontrada!");
     }
 }
-
-
 
 //--------------------CALLBAKC PARA BOTAO ATUALIZAR OS DADOS--------------------//
 
@@ -351,22 +297,21 @@ void on_buscar_atualizar_clicked(GtkButton *button, gpointer user_data) {
 void on_atualizar_residuos_tratados_clicked(GtkButton *button, gpointer user_data) {
     GtkBuilder *builder = GTK_BUILDER(user_data);
 
-    GtkEntry *entry_industria = GTK_ENTRY(gtk_builder_get_object(builder, "industria_selecionada"));
+    GtkLabel *label_industria = GTK_LABEL(gtk_builder_get_object(builder, "industria_selecionada"));
     GtkEntry *entry_custos = GTK_ENTRY(gtk_builder_get_object(builder, "atualizar_custos"));
     GtkEntry *entry_residuos = GTK_ENTRY(gtk_builder_get_object(builder, "atualizar_residuos_ratados"));
     GtkLabel *label_status = GTK_LABEL(gtk_builder_get_object(builder, "status_atualizacao"));
 
-    const char *industria = gtk_entry_get_text(entry_industria);
+    const char *industria = gtk_label_get_text(label_industria);
     const char *novos_custos = gtk_entry_get_text(entry_custos);
     const char *novos_residuos = gtk_entry_get_text(entry_residuos);
 
-    // Verifica se todos os campos estão preenchidos
-    if (strlen(novos_custos) == 0 || strlen(novos_residuos) == 0 || strlen(industria) == 0) {
+    if (strlen(novos_custos) == 0 || strlen(novos_residuos) == 0) {
         gtk_label_set_text(label_status, "Por favor, preencha todos os campos.");
         return;
     }
 
-    FILE *arquivo = fopen("industrias.csv", "r+");
+    FILE *arquivo = fopen("dados.txt", "r+");
     if (!arquivo) {
         gtk_label_set_text(label_status, "Erro ao abrir o arquivo.");
         return;
@@ -376,11 +321,11 @@ void on_atualizar_residuos_tratados_clicked(GtkButton *button, gpointer user_dat
     gboolean atualizado = FALSE;
 
     while (fgets(linha, sizeof(linha), arquivo)) {
-        char cnpj[20], razao_social[100], email[100], custos_atual[20], residuos_atual[20];
-        sscanf(linha, "\"%[^\"]\",\"%[^\"]\",\"%[^\"]\",\"%[^\"]\",\"%[^\"]\"", cnpj, razao_social, email, custos_atual, residuos_atual);
+        char cnpj[20], razao_social[100], email[100], custos[20], residuos[20];
+        sscanf(linha, "%s %s %s %s %s", cnpj, razao_social, email, custos, residuos);
 
         if (strcmp(razao_social, industria) == 0) {
-            snprintf(linha, sizeof(linha), "\"%s\",\"%s\",\"%s\",\"%s\",\"%s\"\n", cnpj, razao_social, email, novos_custos, novos_residuos);
+            snprintf(linha, sizeof(linha), "%s %s %s %s %s\n", cnpj, razao_social, email, novos_custos, novos_residuos);
             atualizado = TRUE;
         }
         strcat(novo_conteudo, linha);
@@ -388,9 +333,8 @@ void on_atualizar_residuos_tratados_clicked(GtkButton *button, gpointer user_dat
 
     fclose(arquivo);
 
-    // Se a indústria foi encontrada e atualizada, reabre o arquivo para escrever
     if (atualizado) {
-        arquivo = fopen("industrias.csv", "w");
+        arquivo = fopen("dados.txt", "w");
         if (arquivo) {
             fputs(novo_conteudo, arquivo);
             fclose(arquivo);
@@ -401,32 +345,6 @@ void on_atualizar_residuos_tratados_clicked(GtkButton *button, gpointer user_dat
     } else {
         gtk_label_set_text(label_status, "Indústria não encontrada no arquivo.");
     }
-}
-
-void on_botao_voltar_atualizacao_clicked(GtkButton *button, gpointer user_data) {
-    GtkBuilder *builder = GTK_BUILDER(user_data);
-
-    // Limpar as informações das labels
-    GtkLabel *label_status = GTK_LABEL(gtk_builder_get_object(builder, "status_atualizacao"));
-    GtkLabel *label_info = GTK_LABEL(gtk_builder_get_object(builder, "informacoes_view_atualizar"));
-    GtkSearchEntry *search_entry = GTK_SEARCH_ENTRY(gtk_builder_get_object(builder, "pesquisa_industria"));
-    GtkEntry *entry_custos = GTK_ENTRY(gtk_builder_get_object(builder, "atualizar_custos"));
-    GtkEntry *entry_residuos = GTK_ENTRY(gtk_builder_get_object(builder, "atualizar_residuos_ratados"));
-
-    // Limpar as informações das labels
-    gtk_label_set_text(label_status, ""); // Limpa o status
-    gtk_label_set_text(label_info, "");   // Limpa as informações da indústria
-
-    // Limpar a barra de pesquisa
-    gtk_entry_set_text(GTK_ENTRY(search_entry), "");
-
-    // Limpar os campos de entrada
-    gtk_entry_set_text(entry_custos, "");
-    gtk_entry_set_text(entry_residuos, "");
-
-    // Voltar para a tela anterior ou menu principal, se necessário
-    GtkStack *stack = GTK_STACK(gtk_builder_get_object(builder, "stack"));
-    gtk_stack_set_visible_child_name(stack, "view_atualizar_residuos");  // Substitua "view_inicial" pelo nome da tela desejada
 }
 
 
@@ -441,24 +359,6 @@ void on_botao_voltar_atualizacao_clicked(GtkButton *button, gpointer user_data) 
 
 //---------------------------------CADASTRO DE INDUSTRIA-------------------------------
 
-void salvar_industria(const char *nome_empresa, const char *cnpj, const char *razao_social,
-                      const char *nome_fantasia, const char *telefone, const char *email,
-                      const char *data_abertura, const char *endereco, const char *cidade,
-                      const char *estado, const char *cep) {
-    FILE *arquivo = fopen("industrias.csv", "a");
-    if (arquivo) {
-        // Salva os dados no formato CSV, com valores entre aspas para garantir compatibilidade
-        fprintf(arquivo, "\"%s\",\"%s\",\"%s\",\"%s\",\"%s\",\"%s\",\"%s\",\"%s\",\"%s\",\"%s\",\"%s\"\n",
-                nome_empresa, cnpj, razao_social, nome_fantasia, telefone, email, data_abertura,
-                endereco, cidade, estado, cep);
-        fclose(arquivo);
-    } else {
-        g_print("Erro ao abrir arquivo para salvar a indústria!\n");
-    }
-}
-
-//-----------------------------------------
-
 void on_cadastro_de_industria_clicked(GtkButton *button, gpointer user_data) {
     GtkBuilder *builder = GTK_BUILDER(user_data);
     GtkWidget *stack = GTK_WIDGET(gtk_builder_get_object(builder, "stack"));  // A GtkStack do seu app
@@ -467,7 +367,6 @@ void on_cadastro_de_industria_clicked(GtkButton *button, gpointer user_data) {
     // Mostrar a view de cadastro de indústria no GtkStack
     gtk_stack_set_visible_child(GTK_STACK(stack), view_cadastro_industria);
 }
-//---------************************************************************************************
 
 void on_botao_cadastro_industria_clicked(GtkButton *button, gpointer user_data) {
     GtkBuilder *builder = GTK_BUILDER(user_data);
@@ -538,27 +437,6 @@ void on_botao_cadastro_industria_clicked(GtkButton *button, gpointer user_data) 
     gtk_label_set_text(GTK_LABEL(label_mensagem), "Indústria cadastrada com sucesso!");
 }
 
-
-    // Salvar dados se estiver tudo correto
-void salvar_industria_csv(const char *nome_empresa, const char *cnpj, const char *razao_social,
-                          const char *nome_fantasia, const char *telefone, const char *email,
-                          const char *data_abertura, const char *endereco, const char *cidade,
-                          const char *estado, const char *cep) {
-    FILE *arquivo = fopen("dados.csv", "a");
-    if (arquivo) {
-        // Escrevendo os dados separados por vírgulas e usando aspas para campos de texto
-        fprintf(arquivo, "\"%s\",\"%s\",\"%s\",\"%s\",\"%s\",\"%s\",\"%s\",\"%s\",\"%s\",\"%s\",\"%s\"\n",
-                nome_empresa, cnpj, razao_social, nome_fantasia, telefone, email, data_abertura,
-                endereco, cidade, estado, cep);
-        fclose(arquivo);
-    } else {
-         g_print("Erro ao abrir arquivo para salvar a indústria!\n");
-    }
-}
-
-
-//---------************************************************************************************
-
 void on_botao_cancelar_industria_clicked(GtkButton *button, gpointer user_data) {
     GtkBuilder *builder = GTK_BUILDER(user_data);
     GtkStack *stack = GTK_STACK(gtk_builder_get_object(builder, "stack"));
@@ -592,8 +470,7 @@ int main(int argc, char *argv[]) {
         "on_atualizacao_de_residuos_clicked", G_CALLBACK(on_atualizacao_de_residuos_clicked),
         "on_botao_voltar_atualizacao_clicked",G_CALLBACK(on_botao_voltar_atualizacao_clicked),
                                      "on_buscar_atualizar_clicked",G_CALLBACK(on_buscar_atualizar_clicked),
-                                     "on_atualizar_residuos_tratados_clicked",G_CALLBACK(on_atualizar_residuos_tratados_clicked),
-
+                                     //"on_selecionar_pesquisa_clicked",G_CALLBACK(on_selecionar_pesquisa_clicked),
 
 
 

@@ -434,10 +434,12 @@
               <object class="GtkSearchEntry" id="pesquisa_industria">
                 <property name="visible">True</property>
                 <property name="can-focus">True</property>
+                <property name="is-focus">True</property>
+                <property name="progress-fraction">2.2351741811588166e-10</property>
                 <property name="primary-icon-name">edit-find-symbolic</property>
                 <property name="primary-icon-activatable">False</property>
                 <property name="primary-icon-sensitive">False</property>
-                <property name="placeholder-text" translatable="yes">Buscar Industria</property>
+                <property name="placeholder-text" translatable="yes">Buscar Industria, Razao Social ou CNPJ</property>
               </object>
               <packing>
                 <property name="expand">False</property>
@@ -1328,8 +1330,12 @@
             <child>
               <object class="GtkEntry" id="industria_selecionada">
                 <property name="visible">True</property>
-                <property name="can-focus">True</property>
+                <property name="sensitive">False</property>
+                <property name="can-focus">False</property>
+                <property name="editable">False</property>
+                <property name="caps-lock-warning">False</property>
                 <property name="placeholder-text" translatable="yes">industria_selecionada</property>
+                <property name="input-purpose">name</property>
               </object>
               <packing>
                 <property name="expand">False</property>
@@ -1380,7 +1386,21 @@
               <object class="GtkBox">
                 <property name="visible">True</property>
                 <property name="can-focus">False</property>
-                <property name="spacing">100</property>
+                <child>
+                  <object class="GtkLabel">
+                    <property name="visible">True</property>
+                    <property name="can-focus">False</property>
+                    <property name="label" translatable="yes">R$ : </property>
+                    <attributes>
+                      <attribute name="weight" value="bold"/>
+                    </attributes>
+                  </object>
+                  <packing>
+                    <property name="expand">False</property>
+                    <property name="fill">True</property>
+                    <property name="position">0</property>
+                  </packing>
+                </child>
                 <child>
                   <object class="GtkLabel" id="custo_atual_atualizar">
                     <property name="visible">True</property>
@@ -1393,7 +1413,26 @@
                   <packing>
                     <property name="expand">False</property>
                     <property name="fill">True</property>
-                    <property name="position">0</property>
+                    <property name="position">1</property>
+                  </packing>
+                </child>
+                <child>
+                  <object class="GtkAccelLabel">
+                    <property name="visible">True</property>
+                    <property name="can-focus">False</property>
+                    <property name="halign">end</property>
+                    <property name="valign">end</property>
+                    <property name="margin-start">60</property>
+                    <property name="label" translatable="yes">KG:  </property>
+                    <property name="justify">right</property>
+                    <attributes>
+                      <attribute name="weight" value="bold"/>
+                    </attributes>
+                  </object>
+                  <packing>
+                    <property name="expand">False</property>
+                    <property name="fill">True</property>
+                    <property name="position">2</property>
                   </packing>
                 </child>
                 <child>
@@ -1408,7 +1447,7 @@
                   <packing>
                     <property name="expand">False</property>
                     <property name="fill">True</property>
-                    <property name="position">1</property>
+                    <property name="position">3</property>
                   </packing>
                 </child>
               </object>
@@ -1438,7 +1477,7 @@
               <object class="GtkEntry" id="atualizar_custos">
                 <property name="visible">True</property>
                 <property name="can-focus">True</property>
-                <property name="placeholder-text" translatable="yes">atualizar_custos</property>
+                <property name="placeholder-text" translatable="yes">Atualizar custos</property>
               </object>
               <packing>
                 <property name="expand">False</property>
@@ -1450,7 +1489,7 @@
               <object class="GtkEntry" id="atualizar_residuos_ratados">
                 <property name="visible">True</property>
                 <property name="can-focus">True</property>
-                <property name="placeholder-text" translatable="yes">atualizar_residuos_ratados</property>
+                <property name="placeholder-text" translatable="yes">Atualizar quantidade de residuos</property>
               </object>
               <packing>
                 <property name="expand">False</property>
@@ -1471,6 +1510,7 @@
                     <property name="visible">True</property>
                     <property name="can-focus">True</property>
                     <property name="receives-default">True</property>
+                    <signal name="clicked" handler="on_atualizar_residuos_tratados_clicked" swapped="no"/>
                   </object>
                   <packing>
                     <property name="expand">False</property>
