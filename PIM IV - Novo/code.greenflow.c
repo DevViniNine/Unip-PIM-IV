@@ -2,21 +2,26 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <ctype.h>
 #include <glib.h>
-#include <limits.h>
-#include <locale.h>
-#ifdef _WIN32
+#include <glib/gstdio.h>
+#include <direct.h>
 #include <windows.h>
 #include <shellapi.h>
-#else
-#include <unistd.h>
-#endif
+#include <locale.h>
+#define PATH_SEP '\\'
+#include <gtk/gtksearchentry.h>
+#include <gtk/gtksearchentry.h>
+/*
+#include <ctype.h>
+#include <limits.h>
+*/
+
 #define MAX_INDUSTRIAS 100
 #define MAX_USUARIOS 100
 #define DADOS_CSV "DADOS.csv"
+#define INDUSTRIAS_CSV "industrias.csv"
 
-
+GtkBuilder *builder;  // Variável global para o GtkBuilder
 
 typedef struct {
     char tipo[10];
@@ -29,19 +34,34 @@ Usuario usuarios[MAX_USUARIOS];
 int total_usuarios = 0;
 
 typedef struct {
-    char nome_empresa[100];
-    char razao_social[100];
-    char nome_fantasia[100];
-    char cnpj[20];
-    char endereco[200];
-    char cidade[100];
-    char estado[100];
-    char cep[9];
-    char data_abertura[11];
-
+    gchar nome_empresa[100];
+    gchar nome_responsavel[100];
+    gchar cpf_responsavel[15];
+    gchar razao_social[100];
+    gchar nome_fantasia[100];
+    gchar cnpj[20];
+    gchar data_abertura[11];
+    gchar telefone[20];
+    gchar email[100];
+    gchar endereco[200];
+    gchar cidade[100];
+    gchar estado[100];
+    gchar cep[9];
+    gdouble residuo;
+    gdouble custo;
 } Industria;
 
+
+void criar_diretorio_relatorios() {
+    if (!g_file_test("Relatorios Greenflow", G_FILE_TEST_IS_DIR)) {
+        g_print("Diretório 'Relatorios Greenflow' não existe. Criando...\n");
+        if (g_mkdir("Relatorios Greenflow", 0755) != 0) {
+            g_print("Falha ao criar diretório 'Relatorios Greenflow'.\n");
+        }
+    }
+}
 //------------------------------------CRIPTOGRAFIA MAIS AVANÇADA UTILIZADA PELA NASA---------------
+
 
 void inverter_senha(const char *senha, char *senha_invertida) {
     int len = strlen(senha);
@@ -55,179 +75,475 @@ void inverter_senha(const char *senha, char *senha_invertida) {
 //------------------------------------CARREGA DADOS PARA TELA DE RELATORIOS-------------------------
 
 
-void carregar_dados(GtkListStore *liststore) {
+void carregar_dados(GtkListStore *liststore, GtkEntry *entry_total_custo, GtkEntry *entry_total_residuo) {
     FILE *file = fopen("industrias.csv", "r");
-    if (file == NULL) {
-        g_print("Erro ao abrir o arquivo CSV.\n");
+    if (!file) {
+        g_print("Erro ao abrir o arquivo industrias.csv.\n");
         return;
     }
 
-    // Variáveis para armazenar os dados de cada linha
-    char razao_social[100], cnpj[20], nome_fantasia[100], endereco[200], cidade[100], estado[100], cep[9], data_abertura[11];
-    float custos, residuos;
+    char linha[1024];
+    double total_custos = 0.0;
+    double total_residuos = 0.0;
+
+    // Ignorar a primeira linha (cabeçalho)
+    fgets(linha, sizeof(linha), file);
+
     GtkTreeIter iter;
+    while (fgets(linha, sizeof(linha), file)) {
+        char razao_social[100], cnpj[20];
+        double custos, residuos;
 
-    // Ignora a primeira linha do arquivo (cabeçalho)
-    fscanf(file, "%*[^\n]\n");
+        // Lê os campos necessários do CSV
+        if (sscanf(linha, "%*[^,],%*[^,],%*[^,],%99[^,],%*[^,],%19[^,],%*[^,],%*[^,],%*[^,],%*[^,],%*[^,],%*[^,],%*[^,],%lf,%lf",
+                   razao_social, cnpj, &custos, &residuos) == 4) {
+            // Adiciona os dados na ListStore
+            gtk_list_store_append(liststore, &iter);
+            gtk_list_store_set(liststore, &iter,
+                               0, razao_social,
+                               1, cnpj,
+                               2, custos,
+                               3, residuos,
+                               -1);
 
-    // Lê o arquivo linha por linha e lê os campos necessários
-    while (fscanf(file, "%99[^,],%19[^,],%99[^,],%99[^,],%99[^,],%99[^,],%8[^,],%10[^,],%f,%f\n",
-                  razao_social, cnpj, nome_fantasia, endereco, cidade, estado, cep, data_abertura, &custos, &residuos) == 10) {
-
-        // Adiciona uma nova linha na ListStore
-        gtk_list_store_append(liststore, &iter);
-
-        // Insere os dados lidos na ListStore (apenas Razão Social, CNPJ, Custos e Resíduos)
-        gtk_list_store_set(liststore, &iter,
-                           0, razao_social,    // Coluna 0: Razão Social (gchararray)
-                           1, cnpj,            // Coluna 1: CNPJ (gchararray)
-                           2, custos,          // Coluna 2: Custos (gdouble)
-                           3, residuos,        // Coluna 3: Resíduos (gdouble)
-                           -1);                 // Finaliza a lista de colunas
+            // Acumula os totais
+            total_custos += custos;
+            total_residuos += residuos;
+        }
     }
 
-    // Fecha o arquivo após a leitura
     fclose(file);
 
-    g_print("Dados carregados com sucesso.\n");
+// Exibe os totais nos campos correspondentes
+    char buffer[50];
+    snprintf(buffer, sizeof(buffer), "%.2f", total_custos);
+    gtk_entry_set_text(entry_total_custo, buffer);
+
+    snprintf(buffer, sizeof(buffer), "%.2f", total_residuos);
+    gtk_entry_set_text(entry_total_residuo, buffer);
 }
+
+
+
+// Função para abrir a tela de relatórios
+void on_botao_relatorios_clicked(GtkWidget *widget, gpointer data) {
+    GtkBuilder *builder = (GtkBuilder *)data;
+
+    GtkStack *main_stack = GTK_STACK(gtk_builder_get_object(builder, "main_stack"));
+    gtk_stack_set_visible_child_name(main_stack, "view_relatorio");
+
+    GtkListStore *liststore = GTK_LIST_STORE(gtk_builder_get_object(builder, "liststore1"));
+    GtkEntry *entry_total_custo = GTK_ENTRY(gtk_builder_get_object(builder, "total_custo"));
+    GtkEntry *entry_total_residuo = GTK_ENTRY(gtk_builder_get_object(builder, "total_residuo"));
+
+    carregar_dados(liststore, entry_total_custo, entry_total_residuo);
+}
+// Callback para o botão de relatórios
+
+void on_menu_atualizar_dados_clicked(GtkButton *button, gpointer data) {
+    GtkBuilder *builder = (GtkBuilder *)data;
+    GtkStack *main_stack = GTK_STACK(gtk_builder_get_object(builder, "main_stack"));
+    gtk_stack_set_visible_child_name(main_stack, "atualizacao_de_dados");
+}
+
+
+
+
+
+
+
+//------------------------------------ATUALIZAÇÃO DE DADOS ABAIXO-------------------------------
+
+
+
+  // Certifique-se de incluir o cabeçalho correto
+
+  // Função de callback para quando a seleção mudar
+void on_treeview_selection_changed(GtkTreeSelection *selection, gpointer user_data) {
+    GtkTreeModel *model;
+    GtkTreeIter iter;
+    gchar *nome_empresa;
+    gchar *cnpj;
+    gdouble residuo, custo;
+
+    // Obtém o modelo da TreeView
+    model = gtk_tree_view_get_model(GTK_TREE_VIEW(user_data));
+
+    // Verifica se um item foi selecionado
+    if (gtk_tree_selection_get_selected(selection, &model, &iter)) {
+        // Obtém os dados da linha selecionada
+        gtk_tree_model_get(model, &iter, 0, &nome_empresa, 5, &cnpj, 13, &residuo, 14, &custo, -1);
+
+        // Atualiza os campos de texto e labels
+        GtkBuilder *builder = GTK_BUILDER(user_data);
+        GtkEntry *entry_nome = GTK_ENTRY(gtk_builder_get_object(builder, "nome_da_industria_selecionada"));
+        GtkEntry *entry_cnpj = GTK_ENTRY(gtk_builder_get_object(builder, "cnpj_da_industria_selecionada"));
+        GtkLabel *residuo_label = GTK_LABEL(gtk_builder_get_object(builder, "atualiza_residuo_atual"));
+        GtkLabel *custo_label = GTK_LABEL(gtk_builder_get_object(builder, "atualiza_custo_atual"));
+
+        gtk_entry_set_text(entry_nome, nome_empresa);
+        gtk_entry_set_text(entry_cnpj, cnpj);
+
+        char residuo_text[50], custo_text[50];
+        snprintf(residuo_text, sizeof(residuo_text), "%.2f", residuo);
+        snprintf(custo_text, sizeof(custo_text), "%.2f", custo);
+
+        gtk_label_set_text(residuo_label, residuo_text);
+        gtk_label_set_text(custo_label, custo_text);
+
+        // Libera a memória alocada para 'nome_empresa' e 'cnpj'
+        g_free(nome_empresa);
+        g_free(cnpj);
+    }
+}
+
+void conectar_sinais(GtkBuilder *builder) {
+    GtkTreeView *treeview = GTK_TREE_VIEW(gtk_builder_get_object(builder, "atualizacao_treeview"));
+    GtkTreeSelection *selection = gtk_tree_view_get_selection(treeview);
+
+    // Conecta o sinal de seleção da TreeView à função de callback
+    g_signal_connect(selection, "changed", G_CALLBACK(on_treeview_selection_changed), treeview);
+}
+
+
+// Função para carregar os dados da indústria no GtkListStore e exibir na TreeView
+
+// Callback para selecionar uma indústria e exibir seus resíduos e custos
+void on_industria_selecionada(GtkTreeSelection *selection, gpointer data) {
+    GtkBuilder *builder = (GtkBuilder *)data;
+    GtkTreeModel *model;
+    GtkTreeIter iter;
+    GtkLabel *residuo_atual_label = GTK_LABEL(gtk_builder_get_object(builder, "residuo_atual"));
+    GtkLabel *custo_atual_label = GTK_LABEL(gtk_builder_get_object(builder, "custo_atual"));
+    GtkEntry *novo_residuo_entry = GTK_ENTRY(gtk_builder_get_object(builder, "novo_residuo"));
+    GtkEntry *novo_custo_entry = GTK_ENTRY(gtk_builder_get_object(builder, "novo_custo"));
+
+    if (gtk_tree_selection_get_selected(selection, &model, &iter)) {
+        gchar *nome_empresa, *nome_responsavel, *cpf_responsavel, *razao_social, *nome_fantasia, *cnpj, *data_abertura;
+        gchar *telefone, *email, *endereco, *cidade, *estado, *cep;
+        gdouble residuo, custo;
+
+        gtk_tree_model_get(model, &iter, 0, &nome_empresa, 1, &nome_responsavel, 2, &cpf_responsavel,
+                           3, &razao_social, 4, &nome_fantasia, 5, &cnpj, 6, &data_abertura, 7, &telefone,
+                           8, &email, 9, &endereco, 10, &cidade, 11, &estado, 12, &cep, 13, &residuo, 14, &custo, -1);
+
+        // Exibe resíduos e custos na interface
+        gchar residuo_str[50], custo_str[50];
+        snprintf(residuo_str, 50, "%.2f", residuo);
+        snprintf(custo_str, 50, "%.2f", custo);
+        gtk_label_set_text(residuo_atual_label, residuo_str);
+        gtk_label_set_text(custo_atual_label, custo_str);
+
+        // Limpa os campos de entrada
+        gtk_entry_set_text(novo_residuo_entry, "");
+        gtk_entry_set_text(novo_custo_entry, "");
+    }
+}
+
+// Callback para confirmar a atualização dos dados
+
+
+// Função de callback para o botão de atualizar dados
+void on_confirma_atualizar_dados_clicked(GtkButton *button, gpointer data) {
+    GtkBuilder *builder = GTK_BUILDER(data);
+    GtkTreeView *treeview = GTK_TREE_VIEW(gtk_builder_get_object(builder, "atualizacao_treeview"));
+    GtkTreeSelection *selection = gtk_tree_view_get_selection(treeview);
+    GtkLabel *status_label = GTK_LABEL(gtk_builder_get_object(builder, "status_atualiza_dados"));
+    GtkEntry *novo_residuo_entry = GTK_ENTRY(gtk_builder_get_object(builder, "novo_residuo"));
+    GtkEntry *novo_custo_entry = GTK_ENTRY(gtk_builder_get_object(builder, "novo_custo"));
+    GtkLabel *residuo_atual_label = GTK_LABEL(gtk_builder_get_object(builder, "atualiza_residuo_atual"));
+    GtkLabel *custo_atual_label = GTK_LABEL(gtk_builder_get_object(builder, "atualiza_custo_atual"));
+
+    const gchar *novo_residuo = gtk_entry_get_text(novo_residuo_entry);
+    const gchar *novo_custo = gtk_entry_get_text(novo_custo_entry);
+
+    if (strlen(novo_residuo) == 0 || strlen(novo_custo) == 0) {
+        gtk_label_set_text(status_label, "Os campos de resíduos e custos não podem ser vazios.");
+        return;
+    }
+
+    gdouble novo_residuo_val = atof(novo_residuo);
+    gdouble novo_custo_val = atof(novo_custo);
+
+    if (novo_residuo_val < 0 || novo_custo_val < 0) {
+        gtk_label_set_text(status_label, "Os valores de resíduos e custos devem ser positivos.");
+        return;
+    }
+
+    // Limpar a seleção na TreeView após a atualização
+    gtk_tree_selection_unselect_all(selection);
+
+    // Processar a atualização da indústria no arquivo (conforme o código anterior)
+    // ...
+
+
+
+ FILE *file = fopen(INDUSTRIAS_CSV, "r+");
+    if (!file) {
+        gtk_label_set_text(status_label, "Erro ao abrir o arquivo.");
+        return;
+    }
+
+    char line[1024];
+    char new_file_content[1024 * 1024] = "";
+    gboolean updated = FALSE;
+
+    while (fgets(line, sizeof(line), file)) {
+        char *tokens[15];
+        int i = 0;
+        tokens[i++] = strtok(line, ",");
+        while (tokens[i - 1] != NULL && i < 15) {
+            tokens[i++] = strtok(NULL, ",");
+        }
+
+        if (strcmp(tokens[0], nome_empresa) == 0 && strcmp(tokens[5], cnpj) == 0) {
+            snprintf(tokens[13], 50, "%.2f", novo_residuo_val);
+            snprintf(tokens[14], 50, "%.2f", novo_custo_val);
+
+            char updated_line[1024];
+            snprintf(updated_line, sizeof(updated_line), "%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%.2f,%.2f\n",
+                     tokens[0], tokens[1], tokens[2], tokens[3], tokens[4],
+                     tokens[5], tokens[6], tokens[7], tokens[8], tokens[9],
+                     tokens[10], tokens[11], tokens[12], novo_residuo_val, novo_custo_val);
+
+            strcat(new_file_content, updated_line);
+            updated = TRUE;
+        } else {
+            strcat(new_file_content, line);
+        }
+    }
+
+    fclose(file);
+
+    if (updated) {
+        file = fopen(INDUSTRIAS_CSV, "w");
+        if (file) {
+            fputs(new_file_content, file);
+            fclose(file);
+            gtk_label_set_text(status_label, "Dados atualizados com sucesso.");
+        } else {
+            gtk_label_set_text(status_label, "Erro ao salvar os dados.");
+        }
+    } else {
+        gtk_label_set_text(status_label, "Indústria não encontrada.");
+    }
+}
+
+    gtk_label_set_text(status_label, "Dados atualizados com sucesso.");
+}
+
+
+
+void atualizar_treeview(GtkListStore *liststore, GtkBuilder *builder) {
+    FILE *file = fopen(INDUSTRIAS_CSV, "r");
+    if (!file) {
+        GtkLabel *status_label = GTK_LABEL(gtk_builder_get_object(builder, "status_atualiza_dados"));
+        gtk_label_set_text(status_label, "Nenhuma indústria cadastrada.");
+        return;
+    }
+
+    char line[1024];
+    gboolean first_line = TRUE;
+    while (fgets(line, sizeof(line), file)) {
+        if (first_line) {
+            first_line = FALSE;
+            continue; // Ignora a primeira linha (cabeçalho)
+        }
+
+        // Tokeniza a linha do arquivo
+        char *tokens[15];
+        int i = 0;
+        tokens[i++] = strtok(line, ",");
+        while (tokens[i - 1] != NULL && i < 15) {
+            tokens[i++] = strtok(NULL, ",");
+        }
+
+        if (i < 15) {
+            // Erro ao processar a linha
+            continue;
+        }
+
+        Industria ind;
+        // Preenche a estrutura Industria com os dados da linha
+        strcpy(ind.nome_empresa, tokens[0]);
+        strcpy(ind.nome_responsavel, tokens[1]);
+        strcpy(ind.cpf_responsavel, tokens[2]);
+        strcpy(ind.razao_social, tokens[3]);
+        strcpy(ind.nome_fantasia, tokens[4]);
+        strcpy(ind.cnpj, tokens[5]);
+        strcpy(ind.data_abertura, tokens[6]);
+        strcpy(ind.telefone, tokens[7]);
+        strcpy(ind.email, tokens[8]);
+        strcpy(ind.endereco, tokens[9]);
+        strcpy(ind.cidade, tokens[10]);
+        strcpy(ind.estado, tokens[11]);
+        strcpy(ind.cep, tokens[12]);
+        ind.residuo = atof(tokens[13]);
+        ind.custo = atof(tokens[14]);
+
+        GtkTreeIter iter;
+        gtk_list_store_append(liststore, &iter);
+        gtk_list_store_set(liststore, &iter,
+                           0, ind.nome_empresa,
+                           1, ind.nome_responsavel,
+                           2, ind.cpf_responsavel,
+                           3, ind.razao_social,
+                           4, ind.nome_fantasia,
+                           5, ind.cnpj,
+                           6, ind.data_abertura,
+                           7, ind.telefone,
+                           8, ind.email,
+                           9, ind.endereco,
+                           10, ind.cidade,
+                           11, ind.estado,
+                           12, ind.cep,
+                           13, ind.residuo,
+                           14, ind.custo,
+                           -1);
+    }
+
+    fclose(file);
+}
+
+
+
+
+//------------------------------------ATUALIZAÇÃO DE DADOS ACIMA--------------------------------
+
+
+
+
+
+
 
 
 
 //------------------------------------FUNÇÃO PARA GERAR RELATORIOS---------------
 
-void on_relatorios_clicked(GtkWidget *widget, gpointer data) {
+void salvar_relatorio(GtkTreeView *treeview, GtkLabel *status_label) {
+    GtkTreeModel *model = gtk_tree_view_get_model(treeview);
+    GtkTreeIter iter;
+    gboolean valid;
+    gchar *razao_social, *cnpj;
+    gdouble residuos, custos;
+    int arquivo_contador = 1;
+    char caminho_base[256];
+    char caminho_final[256];
+    double total_residuos = 0.0, total_custos = 0.0;
+
+    // Diretório base
+    snprintf(caminho_base, sizeof(caminho_base), "Relatorios Greenflow");
+
+    // Criar diretório se não existir
+    if (!g_file_test(caminho_base, G_FILE_TEST_IS_DIR)) {
+        if (g_mkdir(caminho_base, 0755) != 0) {
+            gtk_label_set_text(status_label, "Erro ao criar o diretório dos relatórios.");
+            return;
+        }
+    }
+
+    // Procurar nome de arquivo incremental
+    do {
+        snprintf(caminho_final, sizeof(caminho_final), "%s/relatorio%d.csv", caminho_base, arquivo_contador);
+        arquivo_contador++;
+    } while (g_file_test(caminho_final, G_FILE_TEST_EXISTS));
+
+    // Abrir arquivo para escrita
+    FILE *arquivo = fopen(caminho_final, "w");
+    if (!arquivo) {
+        gtk_label_set_text(status_label, "Erro ao salvar o relatório!");
+        return;
+    }
+
+    // Escrever cabeçalho
+    fprintf(arquivo, "Razao Social,CNPJ,Residuos,Custos\n");
+
+    // Iterar pelos dados da TreeView
+    valid = gtk_tree_model_get_iter_first(model, &iter);
+    while (valid) {
+        gtk_tree_model_get(model, &iter,
+                           0, &razao_social,
+                           1, &cnpj,
+                           2, &residuos,
+                           3, &custos,
+                           -1);
+
+        // Escrever linha com identificadores
+        fprintf(arquivo, "%s,CNPJ: %s,Residuos KG: %.2f,Custos R$: %.2f\n",
+                razao_social, cnpj, residuos, custos);
+
+        // Acumular totais
+        total_residuos += residuos;
+        total_custos += custos;
+
+        // Liberar memória alocada
+        g_free(razao_social);
+        g_free(cnpj);
+
+        valid = gtk_tree_model_iter_next(model, &iter);
+    }
+
+    // Escrever totais com separação
+    fprintf(arquivo, "\n");
+    fprintf(arquivo, "TOTAL DE RESIDUOS TRATADOS EM KG: %.2f\n", total_residuos);
+    fprintf(arquivo, "TOTAL DE CUSTOS EM R$: %.2f\n", total_custos);
+    fprintf(arquivo, "\nGreenFlow-2024\n");
+
+    fclose(arquivo);
+
+    // Atualizar status
+    char mensagem_status[256];
+    snprintf(mensagem_status, sizeof(mensagem_status), "Relatório salvo em:  %s", caminho_final);
+    gtk_label_set_text(status_label, mensagem_status);
+}
+
+void on_salvar_relatorio_clicked(GtkWidget *widget, gpointer data) {
+
+
+
+
     GtkBuilder *builder = (GtkBuilder *)data;
+    GtkTreeView *treeview = GTK_TREE_VIEW(gtk_builder_get_object(builder, "treeview_id"));
+    GtkLabel *status_label = GTK_LABEL(gtk_builder_get_object(builder, "status_relatorio"));
 
-    // Pegando a janela principal e a GtkStack
-    GtkWidget *main_window = GTK_WIDGET(gtk_builder_get_object(builder, "main_window"));
-    GtkWidget *main_stack = GTK_WIDGET(gtk_builder_get_object(builder, "main_stack"));
-
-    // Verificando se a GtkStack foi encontrada
-    if (GTK_IS_STACK(main_stack)) {
-        g_print("Alterando para a página de relatórios...\n");
-
-        // Alternando para a página de relatórios dentro da GtkStack
-        gtk_stack_set_visible_child_name(GTK_STACK(main_stack), "view_relatorio");
-
-        // Carregar dados na ListStore
-        GtkListStore *liststore = GTK_LIST_STORE(gtk_builder_get_object(builder, "liststore1"));
-        if (liststore) {
-            g_print("ListStore encontrada. Limpando e carregando os dados...\n");
-            gtk_list_store_clear(liststore);  // Limpa a ListStore antes de carregar os novos dados
-            g_print("Iniciando o carregamento dos dados...\n");
-            carregar_dados(liststore);  // Carrega os dados no liststore
-            g_print("Dados carregados com sucesso.\n");
-        } else {
-            g_print("Erro ao localizar a ListStore.\n");
-        }
-    } else {
-        g_print("Erro: 'main_stack' não é um GtkStack.\n");
-    }
-    GtkListStore* criar_liststore() {
-    // Criação da ListStore com 4 colunas: 2 de texto (gchararray) e 2 numéricas (gdouble)
-    return gtk_list_store_new(4,
-                              G_TYPE_STRING,  // Razão Social
-                              G_TYPE_STRING,  // CNPJ
-                              G_TYPE_DOUBLE,  // Custos
-                              G_TYPE_DOUBLE); // Resíduos
+    salvar_relatorio(treeview, status_label);
 }
-
-
-
-}
-
-//------------------------------------FUNÇÃO PARA LOCALIZAR O DIRETORIO EM QUALQUER SISTEMA--------
-
-
-void abrir_pasta_relatorios() {
-    char path[256];
-
-#ifdef _WIN32
-    //--------------------------LOCALIZA O CAMINHO DO EXECUTAVEL NO WINDOWS
-    if (GetModuleFileName(NULL, path, sizeof(path))) {
-        // Obtém o diretório (remove o nome do executável)
-        char *last_slash = strrchr(path, '\\');
-        if (last_slash) {
-            *last_slash = '\0';
-        }
-        // Adiciona a pasta "relatorios"
-        strcat(path, "\\relatorios");
-
-        // Verifica se a pasta "relatorios" existe
-        DWORD ftyp = GetFileAttributes(path);
-        if (ftyp == INVALID_FILE_ATTRIBUTES || !(ftyp & FILE_ATTRIBUTE_DIRECTORY)) {
-            MessageBox(NULL, "A pasta 'relatorios' não foi encontrada.", "Erro", MB_ICONERROR);
-            return;
-        }
-
-        // Abre a pasta "relatorios"
-        HINSTANCE result = ShellExecute(NULL, "explore", path, NULL, NULL, SW_SHOWNORMAL);
-        if ((intptr_t)result <= 32) {
-            MessageBox(NULL, "Falha ao abrir a pasta.", "Erro", MB_ICONERROR);
-        }
-    }
-
-#else
-    //--------------------------LOCALIZA O CAMINHO DO EXECUTAVEL NO LINUX
-    char *exec_path = realpath(argv[0], path);  // `argv[0]` é o caminho do executável
-    if (exec_path) {
-        // Remove o nome do executável e obtém o diretório
-        char *last_slash = strrchr(path, '/');
-        if (last_slash) {
-            *last_slash = '\0';
-        }
-
-        // Adiciona a pasta "relatorios"
-        strcat(path, "/relatorios");
-
-        // Verifica se a pasta "relatorios" existe
-        if (access(path, F_OK) == -1) {
-            fprintf(stderr, "A pasta 'relatorios' não foi encontrada.\n");
-            return;
-        }
-
-        // Abre a pasta usando o comando xdg-open
-        char command[512];
-        snprintf(command, sizeof(command), "xdg-open %s", path);
-
-        // Executa o comando
-        int result = system(command);
-        if (result != 0) {
-            fprintf(stderr, "Falha ao abrir a pasta.\n");
-        }
-    }
-#endif
-}
-
-
 //------------------------------------FUNÇÃO PARA O BOTAO ABRIR O DIRETORIO------------------------
 
-void on_abrir_local_relatorios_clicked(GtkButton *button, gpointer user_data) {
-    char caminho_executavel[PATH_MAX];
-    abrir_pasta_relatorios(caminho_executavel, sizeof(caminho_executavel));
 
-    char caminho_relatorios[PATH_MAX];
-    snprintf(caminho_relatorios, sizeof(caminho_relatorios), "%s/relatorios", caminho_executavel);
+void abrir_pasta_relatorios(GtkLabel *status_label) {
+    char caminho_diretorio[MAX_PATH];
 
-#if defined(_WIN32)
-    char comando[PATH_MAX];
-    snprintf(comando, sizeof(comando), "explorer \"%s\"", caminho_relatorios);
-    system(comando);
-#elif defined(__APPLE__)
-    char comando[PATH_MAX];
-    snprintf(comando, sizeof(comando), "open \"%s\"", caminho_relatorios);
-    system(comando);
-#else
-    char comando[PATH_MAX];
-    snprintf(comando, sizeof(comando), "xdg-open \"%s\"", caminho_relatorios);
-    g_spawn_command_line_async(comando, NULL);
-#endif
+    // Define o caminho para a pasta "relatorios greenflow"
+    snprintf(caminho_diretorio, sizeof(caminho_diretorio), "relatorios greenflow");
+
+    // Verifica se o diretório existe
+    DWORD atributos = GetFileAttributes(caminho_diretorio);
+    if (atributos == INVALID_FILE_ATTRIBUTES || !(atributos & FILE_ATTRIBUTE_DIRECTORY)) {
+        // Diretório não encontrado, atualiza a label
+        gtk_label_set_text(status_label, "Diretório 'relatorios greenflow' não encontrado.");
+        return;
+    }
+
+    // Tenta abrir o diretório usando ShellExecute
+    HINSTANCE resultado = ShellExecute(NULL, "open", caminho_diretorio, NULL, NULL, SW_SHOWNORMAL);
+    if ((intptr_t)resultado <= 32) {
+        // Falha ao abrir o diretório
+        gtk_label_set_text(status_label, "Falha ao abrir o diretório.");
+    }
 }
 
+void on_abrir_local_relatorios_clicked(GtkButton *button, gpointer user_data) {
+    GtkBuilder *builder = GTK_BUILDER(user_data);
+
+    // Obtém o label de status pela ID "status_relatorio"
+    GtkLabel *status_label = GTK_LABEL(gtk_builder_get_object(builder, "status_relatorio"));
+    if (status_label) {
+        abrir_pasta_relatorios(status_label);
+    }
+}
 
 //------------------------------------VERIFICA USUARIO NA TELA DE LOGIN----------------------------
-
 int verificar_usuario(const char *login, const char *senha) {
 
 
@@ -265,8 +581,9 @@ int verificar_usuario(const char *login, const char *senha) {
     fclose(file);
     return 0; // Usuário não encontrado
 }
-//------------------------------------FUNCAO PARA FAZER LOGIN NO SISTEMA---------------------------
 
+
+//------------------------------------FUNCAO PARA FAZER LOGIN NO SISTEMA---------------------------
 void on_botao_login_clicked(GtkWidget *widget, gpointer data) {
     GtkBuilder *builder = (GtkBuilder *)data; // Recebe o builder
     GtkEntry *entry_usuario = GTK_ENTRY(gtk_builder_get_object(builder, "view_login_usuario"));
@@ -297,8 +614,9 @@ void on_botao_login_clicked(GtkWidget *widget, gpointer data) {
 
 
 //------------------------------------BOTAO PARA ABIR A TELA DE CADASTRO DE USUARIO------------------
-
 void on_cadastro_de_usuario_clicked(GtkButton *button, gpointer user_data) {
+
+
 
 
 
@@ -308,7 +626,6 @@ void on_cadastro_de_usuario_clicked(GtkButton *button, gpointer user_data) {
     gtk_stack_set_visible_child_name(main_stack, "view_cadastro_usuario");
 }
 //------------------------------------FUNCAO PARA VERIFICA SE USUARIO CADASTRADO JA EXISTE-----------
-
 int usuario_existe(const char *login) {
     for (int i = 0; i < total_usuarios; i++) {
         if (strcmp(usuarios[i].login, login) == 0) {
@@ -320,7 +637,6 @@ int usuario_existe(const char *login) {
 
 
 //------------------------------------FUNCAO PARA CONFIRMAR CADASTRO DO USUARIO----------------------
-
 void on_confirma_cadastro_usuario_clicked(GtkWidget *widget, gpointer data) {
     GtkBuilder *builder = (GtkBuilder *)data;
     GtkEntry *entry_login = GTK_ENTRY(gtk_builder_get_object(builder, "cadastro_login"));
@@ -376,16 +692,79 @@ void on_confirma_cadastro_usuario_clicked(GtkWidget *widget, gpointer data) {
     gtk_entry_set_text(entry_conferir_senha, "");
 }
 
-//------------------------------------BOTAO VOLTAR GERAL----------------------------------------------
 
+//------------------------------------BOTAO VOLTAR DA TELA RELATORIOS PARA LIMPAR OS DADOS E LABEL-----------------
+void on_relatorio_voltar_clicked(GtkButton *button, gpointer user_data) {
+    GtkBuilder *builder = GTK_BUILDER(user_data);
+
+    // Obtém os objetos necessários
+    GtkListStore *liststore = GTK_LIST_STORE(gtk_builder_get_object(builder, "liststore1"));
+    GtkLabel *status_label = GTK_LABEL(gtk_builder_get_object(builder, "status_relatorio"));
+    GtkStack *main_stack = GTK_STACK(gtk_builder_get_object(builder, "main_stack"));
+
+    // Limpa os dados da ListStore
+    if (liststore) {
+        gtk_list_store_clear(liststore);
+    }
+
+    // Limpa o texto da label de status
+    if (status_label) {
+        gtk_label_set_text(status_label, "");
+    }
+
+    // Retorna para o menu principal
+    if (main_stack) {
+        gtk_stack_set_visible_child_name(main_stack, "view_menu_principal");
+    }
+}
+
+
+//------------------------------------BOTAO VOLTAR DA TELA CADASTRO DE USUARIO PARA LIMPAR OS DADOS E LABEL--------
+void on_cadastro_usuario_voltar_clicked(GtkButton *button, gpointer user_data) {
+    GtkBuilder *builder = GTK_BUILDER(user_data);
+
+    // Obtém o objeto da label de status
+    GtkLabel *status_label = GTK_LABEL(gtk_builder_get_object(builder, "status_cadastro_usuario"));
+
+    // Limpa o texto da label de status
+    if (status_label) {
+        gtk_label_set_text(status_label, "");
+    }
+
+    // Obtém os objetos das entradas (Entry)
+    GtkEntry *entry_login = GTK_ENTRY(gtk_builder_get_object(builder, "cadastro_login"));
+    GtkEntry *entry_senha = GTK_ENTRY(gtk_builder_get_object(builder, "cadastro_senha"));
+    GtkEntry *entry_conferir_senha = GTK_ENTRY(gtk_builder_get_object(builder, "cadastro_conferir_senha"));
+
+    // Limpa os campos de entrada
+    if (entry_login) {
+        gtk_entry_set_text(entry_login, "");
+    }
+    if (entry_senha) {
+        gtk_entry_set_text(entry_senha, "");
+    }
+    if (entry_conferir_senha) {
+        gtk_entry_set_text(entry_conferir_senha, "");
+    }
+
+    // Volta para o menu principal
+    GtkStack *main_stack = GTK_STACK(gtk_builder_get_object(builder, "main_stack"));
+    if (main_stack) {
+        gtk_stack_set_visible_child_name(main_stack, "view_menu_principal");
+    }
+}
+
+
+//------------------------------------BOTAO VOLTAR GERAL----------------------------------------------
 void on_geral_voltar_clicked(GtkButton *button, gpointer user_data) {
     GtkBuilder *builder = GTK_BUILDER(user_data);
     GtkStack *main_stack = GTK_STACK(gtk_builder_get_object(builder, "main_stack"));
     gtk_stack_set_visible_child_name(main_stack, "view_menu_principal");
+
 }
 
-//------------------------------------BOTAO FECHAR O PROGRAMA-----------------
 
+//------------------------------------BOTAO FECHAR O PROGRAMA-----------------
 void on_botao_sair_clicked(GtkWidget *widget, gpointer data) {
 
 
@@ -393,10 +772,55 @@ void on_botao_sair_clicked(GtkWidget *widget, gpointer data) {
 
     gtk_main_quit();
 }
-//------------------------------------FUNÇÃO PARA CADASTRO DE INDUSTRIAS--------
+
+
+//------------------------------------BOTAO VOLTAR DA TELA DE CADASTRO---------------------
+void on_cadastro_industria_voltar_clicked(GtkButton *button, gpointer user_data) {
+    GtkBuilder *builder = GTK_BUILDER(user_data);
+
+    // Limpa a label de status
+    GtkLabel *status_label = GTK_LABEL(gtk_builder_get_object(builder, "status_cadastro_industria"));
+    if (status_label) {
+        gtk_label_set_text(status_label, "");
+    }
+
+    GtkEntry *entry_nome = GTK_ENTRY(gtk_builder_get_object(builder, "cadastro_nome_industria"));
+    GtkEntry *entry_responsavel = GTK_ENTRY(gtk_builder_get_object(builder, "nome_responsavel"));
+    GtkEntry *entry_cpf = GTK_ENTRY(gtk_builder_get_object(builder, "cpf_responsavel"));
+    GtkEntry *entry_razao_social = GTK_ENTRY(gtk_builder_get_object(builder, "cadastro_razao_social"));
+    GtkEntry *entry_nome_fantasia = GTK_ENTRY(gtk_builder_get_object(builder, "cadastro_nome_fantasia"));
+    GtkEntry *entry_cnpj = GTK_ENTRY(gtk_builder_get_object(builder, "cadastro_cnpj"));
+    GtkEntry *entry_data = GTK_ENTRY(gtk_builder_get_object(builder, "cadastro_data_abertura"));
+    GtkEntry *entry_telefone = GTK_ENTRY(gtk_builder_get_object(builder, "cadastro_telefone"));
+    GtkEntry *entry_email = GTK_ENTRY(gtk_builder_get_object(builder, "cadastro_email"));
+    GtkEntry *entry_endereco = GTK_ENTRY(gtk_builder_get_object(builder, "cadastro_endereco"));
+    GtkEntry *entry_cidade = GTK_ENTRY(gtk_builder_get_object(builder, "cadastro_cidade"));
+    GtkEntry *entry_estado = GTK_ENTRY(gtk_builder_get_object(builder, "cadastro_estado"));
+    GtkEntry *entry_cep = GTK_ENTRY(gtk_builder_get_object(builder, "cadastro_cep"));
+
+    gtk_entry_set_text(entry_nome, "");
+    gtk_entry_set_text(entry_responsavel, "");
+    gtk_entry_set_text(entry_cpf, "");
+    gtk_entry_set_text(entry_razao_social, "");
+    gtk_entry_set_text(entry_nome_fantasia, "");
+    gtk_entry_set_text(entry_cnpj, "");
+    gtk_entry_set_text(entry_data, "");
+    gtk_entry_set_text(entry_telefone, "");
+    gtk_entry_set_text(entry_email, "");
+    gtk_entry_set_text(entry_endereco, "");
+    gtk_entry_set_text(entry_cidade, "");
+    gtk_entry_set_text(entry_estado, "");
+    gtk_entry_set_text(entry_cep, "");
+
+    // Volta para o menu principal
+    GtkStack *main_stack = GTK_STACK(gtk_builder_get_object(builder, "main_stack"));
+    if (main_stack) {
+        gtk_stack_set_visible_child_name(main_stack, "view_menu_principal");
+    }
+}
+
 
 //------------------------------------FUNÇÃO PARA CADASTRO DE INDUSTRIAS--------
-
 void on_cadastro_de_industria_clicked(GtkButton *button, gpointer user_data) {
     GtkBuilder *builder = GTK_BUILDER(user_data);
     GtkStack *main_stack = GTK_STACK(gtk_builder_get_object(builder, "main_stack"));
@@ -426,6 +850,7 @@ int validar_data(const char *data) {
     }
     return 1;
 }
+
 
 //------------------------------------FUNÇÃO PARA CADASTRO DE INDUSTRIAS--------
 void on_confirmar_cadastro_industria_clicked(GtkWidget *widget, gpointer data) {
@@ -460,7 +885,7 @@ void on_confirmar_cadastro_industria_clicked(GtkWidget *widget, gpointer data) {
     const char *estado = gtk_entry_get_text(entry_estado);
     const char *cep = gtk_entry_get_text(entry_cep);
 
-    // Verifica campos obrigatórios
+    // Validações de campos obrigatórios
     if (strlen(nome) == 0 || strlen(responsavel) == 0 || strlen(cpf) == 0 || strlen(razao_social) == 0 ||
         strlen(nome_fantasia) == 0 || strlen(cnpj) == 0 || strlen(data_abertura) == 0 || strlen(telefone) == 0 ||
         strlen(email) == 0 || strlen(endereco) == 0 || strlen(cidade) == 0 || strlen(estado) == 0 || strlen(cep) == 0) {
@@ -494,30 +919,26 @@ void on_confirmar_cadastro_industria_clicked(GtkWidget *widget, gpointer data) {
         return;
     }
 
-    // Verifica se o telefone está preenchido corretamente
-    if (strlen(telefone) == 0) {
-        telefone = "Não informado"; // Preenche com "Não informado" caso o telefone esteja vazio
-    }
-
     // Inicializa custos e resíduos
-    double custos = 0.00;   // Custos iniciais
-    double residuos = 0.00; // Resíduos iniciais
+    double custos = 0.00;
+    double residuos = 0.00;
 
-    // Dados válidos, salvar no CSV
+    // Salva os dados no arquivo CSV
     FILE *file = fopen("industrias.csv", "a");
     if (file == NULL) {
         gtk_label_set_text(label_status, "Erro ao salvar os dados.");
         return;
     }
 
-    // Adicionando os dados ao arquivo CSV
-    fprintf(file, "%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%.2f,%.2f\n",
-            razao_social, cnpj, nome_fantasia, endereco, cidade, estado, cep, data_abertura, telefone, email, custos, residuos);
+    fprintf(file, "%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%.2f,%.2f\n",
+            nome, responsavel, cpf, razao_social, nome_fantasia, cnpj, data_abertura,
+            telefone, email, endereco, cidade, estado, cep, custos, residuos);
+
     fclose(file);
 
     gtk_label_set_text(label_status, "Indústria cadastrada com sucesso!");
 
-    // Limpa os campos de entrada após o cadastro
+    // Limpa os campos após o cadastro
     gtk_entry_set_text(entry_nome, "");
     gtk_entry_set_text(entry_responsavel, "");
     gtk_entry_set_text(entry_cpf, "");
@@ -538,10 +959,14 @@ void on_confirmar_cadastro_industria_clicked(GtkWidget *widget, gpointer data) {
 int main(int argc, char *argv[]) {
     gtk_init(&argc, &argv);
 
+    criar_diretorio_relatorios();
+
     GtkBuilder *builder = gtk_builder_new_from_file("user_interface.glade");
     GtkWidget *main_window = GTK_WIDGET(gtk_builder_get_object(builder, "main_window"));
-setlocale(LC_NUMERIC, "C");
-    // Obtenha o widget da janela view_relatorio
+    setlocale(LC_NUMERIC, "C");
+    GtkListStore *liststore = GTK_LIST_STORE(gtk_builder_get_object(builder, "liststore2"));
+    atualizar_treeview(liststore, builder);
+
 
     // Conecta os sinais aos callbacks
     gtk_builder_add_callback_symbols(
@@ -554,14 +979,23 @@ setlocale(LC_NUMERIC, "C");
         "on_cadastro_de_industria_clicked", G_CALLBACK(on_cadastro_de_industria_clicked),
         "on_confirmar_cadastro_industria_clicked", G_CALLBACK(on_confirmar_cadastro_industria_clicked),
         "on_abrir_local_relatorios_clicked", G_CALLBACK(on_abrir_local_relatorios_clicked),
-        "on_relatorios_clicked", G_CALLBACK(on_relatorios_clicked),
+        "on_botao_relatorios_clicked", G_CALLBACK(on_botao_relatorios_clicked),
+                                     "on_salvar_relatorio_clicked", G_CALLBACK(on_salvar_relatorio_clicked),
+                                     "on_relatorio_voltar_clicked", G_CALLBACK(on_relatorio_voltar_clicked),
+                                     "on_cadastro_usuario_voltar_clicked", G_CALLBACK(on_cadastro_usuario_voltar_clicked),
+                                     "on_cadastro_industria_voltar_clicked", G_CALLBACK(on_cadastro_industria_voltar_clicked),
+
+                                     "on_menu_atualizar_dados_clicked", G_CALLBACK(on_menu_atualizar_dados_clicked),
+
+
+                                     "on_confirma_atualizar_dados_clicked", G_CALLBACK(on_confirma_atualizar_dados_clicked),
+
+
         NULL
     );
 
     // Conecta os sinais da interface
     gtk_builder_connect_signals(builder, builder);
-
-    // Conectar o sinal de "show" da janela view_relatorio
 
     // Exibe a janela principal
     gtk_widget_show_all(main_window);
