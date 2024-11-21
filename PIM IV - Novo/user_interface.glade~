@@ -1293,6 +1293,8 @@
               <object class="GtkScrolledWindow">
                 <property name="visible">True</property>
                 <property name="can-focus">True</property>
+                <property name="margin-start">5</property>
+                <property name="margin-end">5</property>
                 <property name="hscrollbar-policy">never</property>
                 <property name="shadow-type">in</property>
                 <property name="min-content-height">380</property>
