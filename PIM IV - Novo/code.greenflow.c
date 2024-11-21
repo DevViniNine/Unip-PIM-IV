@@ -5,16 +5,13 @@
 #include <ctype.h>
 #include <glib.h>
 #include <limits.h>
-
+#include <locale.h>
 #ifdef _WIN32
 #include <windows.h>
 #include <shellapi.h>
 #else
-#include <stdlib.h>
-#include <string.h>
 #include <unistd.h>
 #endif
-
 #define MAX_INDUSTRIAS 100
 #define MAX_USUARIOS 100
 #define DADOS_CSV "DADOS.csv"
@@ -32,23 +29,17 @@ Usuario usuarios[MAX_USUARIOS];
 int total_usuarios = 0;
 
 typedef struct {
-    char tipo[20];          // Tipo da entidade (ex: "INDUSTRIA")
-    int id;                // ID da indústria
-    char nome_empresa[100]; // Nome da empresa
-    char razao_social[100]; // Razão social
-    char nome_fantasia[100]; // Nome fantasia
-    char cnpj[20];         // CNPJ
-    char endereco[200];    // Endereço
-    char cidade[100];      // Cidade
-    char estado[3];        // Estado (sigla)
-    char cep[10];          // CEP
-    char data_abertura[11]; // Data de abertura (formato DD/MM/AAAA)
-    float custos;          // Custos
-    float residuos;        // Resíduos
-} Industria;
+    char nome_empresa[100];
+    char razao_social[100];
+    char nome_fantasia[100];
+    char cnpj[20];
+    char endereco[200];
+    char cidade[100];
+    char estado[100];
+    char cep[9];
+    char data_abertura[11];
 
-Industria industrias[MAX_INDUSTRIAS];
-int total_industrias = 0;
+} Industria;
 
 //------------------------------------CRIPTOGRAFIA MAIS AVANÇADA UTILIZADA PELA NASA---------------
 
@@ -58,6 +49,92 @@ void inverter_senha(const char *senha, char *senha_invertida) {
         senha_invertida[i] = senha[len - i - 1];
     }
     senha_invertida[len] = '\0'; // Adiciona o terminador da string
+}
+
+
+//------------------------------------CARREGA DADOS PARA TELA DE RELATORIOS-------------------------
+
+
+void carregar_dados(GtkListStore *liststore) {
+    FILE *file = fopen("industrias.csv", "r");
+    if (file == NULL) {
+        g_print("Erro ao abrir o arquivo CSV.\n");
+        return;
+    }
+
+    // Variáveis para armazenar os dados de cada linha
+    char razao_social[100], cnpj[20], nome_fantasia[100], endereco[200], cidade[100], estado[100], cep[9], data_abertura[11];
+    float custos, residuos;
+    GtkTreeIter iter;
+
+    // Ignora a primeira linha do arquivo (cabeçalho)
+    fscanf(file, "%*[^\n]\n");
+
+    // Lê o arquivo linha por linha e lê os campos necessários
+    while (fscanf(file, "%99[^,],%19[^,],%99[^,],%99[^,],%99[^,],%99[^,],%8[^,],%10[^,],%f,%f\n",
+                  razao_social, cnpj, nome_fantasia, endereco, cidade, estado, cep, data_abertura, &custos, &residuos) == 10) {
+
+        // Adiciona uma nova linha na ListStore
+        gtk_list_store_append(liststore, &iter);
+
+        // Insere os dados lidos na ListStore (apenas Razão Social, CNPJ, Custos e Resíduos)
+        gtk_list_store_set(liststore, &iter,
+                           0, razao_social,    // Coluna 0: Razão Social (gchararray)
+                           1, cnpj,            // Coluna 1: CNPJ (gchararray)
+                           2, custos,          // Coluna 2: Custos (gdouble)
+                           3, residuos,        // Coluna 3: Resíduos (gdouble)
+                           -1);                 // Finaliza a lista de colunas
+    }
+
+    // Fecha o arquivo após a leitura
+    fclose(file);
+
+    g_print("Dados carregados com sucesso.\n");
+}
+
+
+
+//------------------------------------FUNÇÃO PARA GERAR RELATORIOS---------------
+
+void on_relatorios_clicked(GtkWidget *widget, gpointer data) {
+    GtkBuilder *builder = (GtkBuilder *)data;
+
+    // Pegando a janela principal e a GtkStack
+    GtkWidget *main_window = GTK_WIDGET(gtk_builder_get_object(builder, "main_window"));
+    GtkWidget *main_stack = GTK_WIDGET(gtk_builder_get_object(builder, "main_stack"));
+
+    // Verificando se a GtkStack foi encontrada
+    if (GTK_IS_STACK(main_stack)) {
+        g_print("Alterando para a página de relatórios...\n");
+
+        // Alternando para a página de relatórios dentro da GtkStack
+        gtk_stack_set_visible_child_name(GTK_STACK(main_stack), "view_relatorio");
+
+        // Carregar dados na ListStore
+        GtkListStore *liststore = GTK_LIST_STORE(gtk_builder_get_object(builder, "liststore1"));
+        if (liststore) {
+            g_print("ListStore encontrada. Limpando e carregando os dados...\n");
+            gtk_list_store_clear(liststore);  // Limpa a ListStore antes de carregar os novos dados
+            g_print("Iniciando o carregamento dos dados...\n");
+            carregar_dados(liststore);  // Carrega os dados no liststore
+            g_print("Dados carregados com sucesso.\n");
+        } else {
+            g_print("Erro ao localizar a ListStore.\n");
+        }
+    } else {
+        g_print("Erro: 'main_stack' não é um GtkStack.\n");
+    }
+    GtkListStore* criar_liststore() {
+    // Criação da ListStore com 4 colunas: 2 de texto (gchararray) e 2 numéricas (gdouble)
+    return gtk_list_store_new(4,
+                              G_TYPE_STRING,  // Razão Social
+                              G_TYPE_STRING,  // CNPJ
+                              G_TYPE_DOUBLE,  // Custos
+                              G_TYPE_DOUBLE); // Resíduos
+}
+
+
+
 }
 
 //------------------------------------FUNÇÃO PARA LOCALIZAR O DIRETORIO EM QUALQUER SISTEMA--------
@@ -152,6 +229,8 @@ void on_abrir_local_relatorios_clicked(GtkButton *button, gpointer user_data) {
 //------------------------------------VERIFICA USUARIO NA TELA DE LOGIN----------------------------
 
 int verificar_usuario(const char *login, const char *senha) {
+
+
 
 
     FILE *file = fopen(DADOS_CSV, "r");
@@ -311,19 +390,20 @@ void on_botao_sair_clicked(GtkWidget *widget, gpointer data) {
 
 
 
+
     gtk_main_quit();
 }
 //------------------------------------FUNÇÃO PARA CADASTRO DE INDUSTRIAS--------
 
-void on_cadastro_de_industria_clicked(GtkButton *button, gpointer user_data) {
+//------------------------------------FUNÇÃO PARA CADASTRO DE INDUSTRIAS--------
 
+void on_cadastro_de_industria_clicked(GtkButton *button, gpointer user_data) {
     GtkBuilder *builder = GTK_BUILDER(user_data);
     GtkStack *main_stack = GTK_STACK(gtk_builder_get_object(builder, "main_stack"));
     gtk_stack_set_visible_child_name(main_stack, "view_cadastro_industria");
 }
 
 int validar_numeros(const char *str) {
-
     for (int i = 0; str[i] != '\0'; i++) {
         if (!isdigit(str[i]) && str[i] != '.' && str[i] != '-') {
             return 0; // Contém caracteres inválidos
@@ -331,8 +411,8 @@ int validar_numeros(const char *str) {
     }
     return 1; // Válido
 }
-int validar_data(const char *data) {
 
+int validar_data(const char *data) {
     if (strlen(data) != 10 || data[2] != '/' || data[5] != '/') {
         return 0;
     }
@@ -346,6 +426,8 @@ int validar_data(const char *data) {
     }
     return 1;
 }
+
+//------------------------------------FUNÇÃO PARA CADASTRO DE INDUSTRIAS--------
 void on_confirmar_cadastro_industria_clicked(GtkWidget *widget, gpointer data) {
     GtkBuilder *builder = (GtkBuilder *)data;
     GtkEntry *entry_nome = GTK_ENTRY(gtk_builder_get_object(builder, "cadastro_nome_industria"));
@@ -412,35 +494,30 @@ void on_confirmar_cadastro_industria_clicked(GtkWidget *widget, gpointer data) {
         return;
     }
 
-    // Dados válidos, salvar no CSV
-    Industria nova_industria;
-    strcpy(nova_industria.tipo, "INDUSTRIA");
-    nova_industria.id = total_industrias + 1;
-    strcpy(nova_industria.nome_empresa, nome);
-    strcpy(nova_industria.razao_social, razao_social);
-    strcpy(nova_industria.nome_fantasia, nome_fantasia);
-    strcpy(nova_industria.cnpj, cnpj);
-    strcpy(nova_industria.endereco, endereco);
-    strcpy(nova_industria.cidade, cidade);
-    strcpy(nova_industria.estado, estado);
-    strcpy(nova_industria.cep, cep);
-    strcpy(nova_industria.data_abertura, data_abertura);
-    nova_industria.custos = 0; // Custos iniciais
-    nova_industria.residuos = 0; // Resíduos iniciais
+    // Verifica se o telefone está preenchido corretamente
+    if (strlen(telefone) == 0) {
+        telefone = "Não informado"; // Preenche com "Não informado" caso o telefone esteja vazio
+    }
 
+    // Inicializa custos e resíduos
+    double custos = 0.00;   // Custos iniciais
+    double residuos = 0.00; // Resíduos iniciais
+
+    // Dados válidos, salvar no CSV
     FILE *file = fopen("industrias.csv", "a");
     if (file == NULL) {
         gtk_label_set_text(label_status, "Erro ao salvar os dados.");
         return;
     }
 
-    fprintf(file, "INDUSTRIA,%d,%s,%s,%s,%s,%s,%s,%s,%s,%s,%.2f,%.2f\n",
-            nova_industria.id, nova_industria.nome_empresa, nova_industria.razao_social, nova_industria.nome_fantasia,
-            nova_industria.cnpj, nova_industria.endereco, nova_industria.cidade, nova_industria.estado,
-            nova_industria.cep, nova_industria.data_abertura, nova_industria.custos, nova_industria.residuos);
+    // Adicionando os dados ao arquivo CSV
+    fprintf(file, "%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%.2f,%.2f\n",
+            razao_social, cnpj, nome_fantasia, endereco, cidade, estado, cep, data_abertura, telefone, email, custos, residuos);
     fclose(file);
 
     gtk_label_set_text(label_status, "Indústria cadastrada com sucesso!");
+
+    // Limpa os campos de entrada após o cadastro
     gtk_entry_set_text(entry_nome, "");
     gtk_entry_set_text(entry_responsavel, "");
     gtk_entry_set_text(entry_cpf, "");
@@ -457,24 +534,14 @@ void on_confirmar_cadastro_industria_clicked(GtkWidget *widget, gpointer data) {
 }
 
 
-//------------------------------------FUNÇÃO PARA GERAR RELATORIOS---------------
-
-
-void on_relatorios_clicked(GtkButton *button, gpointer user_data) {
-    GtkBuilder *builder = GTK_BUILDER(user_data);
-    GtkStack *main_stack = GTK_STACK(gtk_builder_get_object(builder, "main_stack"));
-
-    // Alterna para a view_relatorio
-    gtk_stack_set_visible_child_name(main_stack, "view_relatorio");
-}
-
 //------------------------------------FUNÇÃO PRINCIPAL----------------------
 int main(int argc, char *argv[]) {
     gtk_init(&argc, &argv);
 
-    // Carrega a interface a partir do arquivo Glade
     GtkBuilder *builder = gtk_builder_new_from_file("user_interface.glade");
     GtkWidget *main_window = GTK_WIDGET(gtk_builder_get_object(builder, "main_window"));
+setlocale(LC_NUMERIC, "C");
+    // Obtenha o widget da janela view_relatorio
 
     // Conecta os sinais aos callbacks
     gtk_builder_add_callback_symbols(
@@ -488,14 +555,17 @@ int main(int argc, char *argv[]) {
         "on_confirmar_cadastro_industria_clicked", G_CALLBACK(on_confirmar_cadastro_industria_clicked),
         "on_abrir_local_relatorios_clicked", G_CALLBACK(on_abrir_local_relatorios_clicked),
         "on_relatorios_clicked", G_CALLBACK(on_relatorios_clicked),
-
         NULL
     );
 
+    // Conecta os sinais da interface
     gtk_builder_connect_signals(builder, builder);
+
+    // Conectar o sinal de "show" da janela view_relatorio
 
     // Exibe a janela principal
     gtk_widget_show_all(main_window);
+
     gtk_main();
 
     // Libera o builder
