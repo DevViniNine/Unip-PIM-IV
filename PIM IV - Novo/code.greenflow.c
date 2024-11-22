@@ -135,63 +135,6 @@ void on_botao_relatorios_clicked(GtkWidget *widget, gpointer data) {
     carregar_dados(liststore, entry_total_custo, entry_total_residuo);
 }
 
-void on_menu_atualizar_dados_clicked(GtkButton *button, gpointer data) {
-    GtkBuilder *builder = (GtkBuilder *)data;
-    GtkStack *main_stack = GTK_STACK(gtk_builder_get_object(builder, "main_stack"));
-    GtkListStore *liststore = GTK_LIST_STORE(gtk_builder_get_object(builder, "liststore2"));
-
-    // Limpa o liststore
-    gtk_list_store_clear(liststore);
-
-    // Recarrega os dados do arquivo CSV
-    FILE *file = fopen(INDUSTRIAS_CSV, "r");
-    if (!file) {
-        g_printerr("Erro ao abrir o arquivo CSV para recarregar a lista.\n");
-        gtk_stack_set_visible_child_name(main_stack, "atualizacao_de_dados");
-        return;
-    }
-
-    char line[1024];
-    while (fgets(line, sizeof(line), file)) {
-        char *tokens[15];
-        int i = 0;
-
-        tokens[i++] = strtok(line, ",");
-        while (tokens[i - 1] != NULL && i < 15) {
-            tokens[i++] = strtok(NULL, ",");
-        }
-
-        // Adiciona os dados ao liststore
-        GtkTreeIter iter;
-        gtk_list_store_append(liststore, &iter);
-        gtk_list_store_set(liststore, &iter,
-            0, tokens[0],  // Nome da indústria
-            1, tokens[1],  // Nome do responsável
-            2, tokens[2],  // CPF do responsável
-            3, tokens[3],  // Razão social
-            4, tokens[4],  // Nome fantasia
-            5, tokens[5],  // CNPJ
-            6, tokens[6],  // Data de abertura
-            7, tokens[7],  // Telefone
-            8, tokens[8],  // Email
-            9, tokens[9],  // Endereço
-            10, tokens[10], // Cidade
-            11, tokens[11], // Estado
-            12, tokens[12], // CEP
-            13, tokens[13], // Resíduo
-            14, tokens[14], // Custo
-            -1);
-    }
-
-    fclose(file);
-
-    // Exibe a visualização de atualização
-    gtk_stack_set_visible_child_name(main_stack, "atualizacao_de_dados");
-}
-
-
-
-
 
 
 
@@ -203,6 +146,7 @@ void on_menu_atualizar_dados_clicked(GtkButton *button, gpointer data) {
 
 
 void atualizar_treeview(GtkListStore *liststore) {
+
     FILE *file = fopen(INDUSTRIAS_CSV, "r");
     if (!file) {
         printf("Erro ao abrir o arquivo %s.\n", INDUSTRIAS_CSV);
@@ -270,10 +214,188 @@ void atualizar_treeview(GtkListStore *liststore) {
 
     fclose(file);
 }
+////////////////////////////////PARTE COM PROBLEMA ////////////////////////
 
+void on_menu_atualizar_dados_clicked(GtkButton *button, gpointer data) {
+    GtkBuilder *builder = (GtkBuilder *)data;
+    GtkStack *main_stack = GTK_STACK(gtk_builder_get_object(builder, "main_stack"));
+    GtkListStore *liststore = GTK_LIST_STORE(gtk_builder_get_object(builder, "liststore2"));
+    GtkLabel *status_label = GTK_LABEL(gtk_builder_get_object(builder, "status_atualiza_dados"));
 
+    // Limpa o liststore
+    gtk_list_store_clear(liststore);
 
+    // Cria uma cópia do arquivo original
+    FILE *file = fopen(INDUSTRIAS_CSV, "r");
+    if (!file) {
+        g_printerr("Erro ao abrir o arquivo CSV original.\n");
+        gtk_stack_set_visible_child_name(main_stack, "atualizacao_de_dados");
+        gtk_label_set_text(status_label, "Erro ao abrir o arquivo CSV original.");
+        return;
+    }
 
+    FILE *temp_file = fopen("temp.csv", "w+");
+    if (!temp_file) {
+        fclose(file);
+        g_printerr("Erro ao criar arquivo temporário.\n");
+        gtk_stack_set_visible_child_name(main_stack, "atualizacao_de_dados");
+        gtk_label_set_text(status_label, "Erro ao criar arquivo temporário.");
+        return;
+    }
+
+    char line[1024];
+
+    // Ignora o cabeçalho e escreve no arquivo temporário
+    if (fgets(line, sizeof(line), file) == NULL) {
+        fclose(file);
+        fclose(temp_file);
+        g_printerr("Arquivo CSV vazio ou erro ao ler cabeçalho.\n");
+        gtk_stack_set_visible_child_name(main_stack, "atualizacao_de_dados");
+        gtk_label_set_text(status_label, "Arquivo CSV vazio ou erro ao ler cabeçalho.");
+        return;
+    }
+
+    // Escreve o cabeçalho no arquivo temporário
+    fputs(line, temp_file);
+
+    // Lê as linhas restantes e escreve na cópia
+    while (fgets(line, sizeof(line), file)) {
+        fputs(line, temp_file);
+    }
+
+    fclose(file);
+    fclose(temp_file); // Fecha o arquivo temporário
+
+    // Recarrega o ListStore com dados do arquivo original (primeiro passo)
+    file = fopen(INDUSTRIAS_CSV, "r");
+    if (!file) {
+        g_printerr("Erro ao abrir o arquivo CSV original após copiar.\n");
+        gtk_stack_set_visible_child_name(main_stack, "atualizacao_de_dados");
+        gtk_label_set_text(status_label, "Erro ao abrir o arquivo CSV original.");
+        return;
+    }
+
+    // Ignora o cabeçalho novamente
+    fgets(line, sizeof(line), file);
+
+    // Preenche o ListStore com os dados do arquivo original
+    while (fgets(line, sizeof(line), file)) {
+        char *tokens[15] = {0};
+        int i = 0;
+
+        // Divide a linha em tokens usando strtok
+        tokens[i++] = strtok(line, ",");
+        while (tokens[i - 1] != NULL && i < 15) {
+            tokens[i++] = strtok(NULL, ",");
+        }
+
+        // Verifica se a linha está completa antes de adicionar ao ListStore
+        if (i < 15) {
+            g_printerr("Linha incompleta no arquivo CSV. Ignorando.\n");
+            continue;
+        }
+
+        // Remove espaços extras ou quebras de linha nos campos finais
+        for (int j = 0; j < i; j++) {
+            if (tokens[j]) {
+                char *newline_pos = strchr(tokens[j], '\n');
+                if (newline_pos) *newline_pos = '\0';
+            }
+        }
+
+        // Adiciona os dados ao ListStore
+        GtkTreeIter iter;
+        gtk_list_store_append(liststore, &iter);
+        gtk_list_store_set(liststore, &iter,
+                           0, tokens[0],  // Nome da indústria
+                           1, tokens[1],  // Nome do responsável
+                           2, tokens[2],  // CPF do responsável
+                           3, tokens[3],  // Razão social
+                           4, tokens[4],  // Nome fantasia
+                           5, tokens[5],  // CNPJ
+                           6, tokens[6],  // Data de abertura
+                           7, tokens[7],  // Telefone
+                           8, tokens[8],  // Email
+                           9, tokens[9],  // Endereço
+                           10, tokens[10], // Cidade
+                           11, tokens[11], // Estado
+                           12, tokens[12], // CEP
+                           13, tokens[13], // Resíduo
+                           14, tokens[14], // Custo
+                           -1);
+    }
+
+    fclose(file);
+
+    // Limpa o ListStore e carrega os dados da cópia
+    gtk_list_store_clear(liststore);
+
+    // Lê a cópia do arquivo CSV (temp.csv)
+    file = fopen("temp.csv", "r");
+    if (!file) {
+        g_printerr("Erro ao abrir o arquivo temporário.\n");
+        gtk_stack_set_visible_child_name(main_stack, "atualizacao_de_dados");
+        gtk_label_set_text(status_label, "Erro ao abrir o arquivo temporário.");
+        return;
+    }
+
+    // Ignora o cabeçalho da cópia
+    fgets(line, sizeof(line), file);
+
+    // Preenche o ListStore com os dados do arquivo temporário
+    while (fgets(line, sizeof(line), file)) {
+        char *tokens[15] = {0};
+        int i = 0;
+
+        // Divide a linha em tokens usando strtok
+        tokens[i++] = strtok(line, ",");
+        while (tokens[i - 1] != NULL && i < 15) {
+            tokens[i++] = strtok(NULL, ",");
+        }
+
+        // Verifica se a linha está completa antes de adicionar ao ListStore
+        if (i < 15) {
+            g_printerr("Linha incompleta no arquivo CSV. Ignorando.\n");
+            continue;
+        }
+
+        // Remove espaços extras ou quebras de linha nos campos finais
+        for (int j = 0; j < i; j++) {
+            if (tokens[j]) {
+                char *newline_pos = strchr(tokens[j], '\n');
+                if (newline_pos) *newline_pos = '\0';
+            }
+        }
+
+        // Adiciona os dados ao ListStore
+        GtkTreeIter iter;
+        gtk_list_store_append(liststore, &iter);
+        gtk_list_store_set(liststore, &iter,
+                           0, tokens[0],  // Nome da indústria
+                           1, tokens[1],  // Nome do responsável
+                           2, tokens[2],  // CPF do responsável
+                           3, tokens[3],  // Razão social
+                           4, tokens[4],  // Nome fantasia
+                           5, tokens[5],  // CNPJ
+                           6, tokens[6],  // Data de abertura
+                           7, tokens[7],  // Telefone
+                           8, tokens[8],  // Email
+                           9, tokens[9],  // Endereço
+                           10, tokens[10], // Cidade
+                           11, tokens[11], // Estado
+                           12, tokens[12], // CEP
+                           13, tokens[13], // Resíduo
+                           14, tokens[14], // Custo
+                           -1);
+    }
+
+    fclose(file);
+
+    // Exibe a visualização de atualização
+    gtk_stack_set_visible_child_name(main_stack, "atualizacao_de_dados");
+}
+
+/////////////////////////////////////PARTE COM PROBLEMAS///////////////////
 
 void on_treeview_selection_changed(GtkTreeSelection *selection, gpointer builder) {
     GtkTreeModel *model;
@@ -451,11 +573,12 @@ void on_industria_selecionada(GtkTreeSelection *selection, gpointer data) {
     GtkBuilder *builder = (GtkBuilder *)data;
     GtkTreeModel *model;
     GtkTreeIter iter;
-    GtkLabel *residuo_atual_label = GTK_LABEL(gtk_builder_get_object(builder, "residuo_atual"));
-    GtkLabel *custo_atual_label = GTK_LABEL(gtk_builder_get_object(builder, "custo_atual"));
+    GtkLabel *residuo_atual_label = GTK_LABEL(gtk_builder_get_object(builder, "atualiza_residuo_atual"));
+    GtkLabel *custo_atual_label = GTK_LABEL(gtk_builder_get_object(builder, "atualiza_custo_atual"));
     GtkEntry *novo_residuo_entry = GTK_ENTRY(gtk_builder_get_object(builder, "novo_residuo"));
     GtkEntry *novo_custo_entry = GTK_ENTRY(gtk_builder_get_object(builder, "novo_custo"));
 
+    // Verifica se uma linha foi selecionada na TreeView
     if (gtk_tree_selection_get_selected(selection, &model, &iter)) {
         gchar *nome_empresa, *nome_responsavel, *cpf_responsavel, *razao_social, *nome_fantasia, *cnpj, *data_abertura;
         gchar *telefone, *email, *endereco, *cidade, *estado, *cep;
@@ -465,16 +588,25 @@ void on_industria_selecionada(GtkTreeSelection *selection, gpointer data) {
                            3, &razao_social, 4, &nome_fantasia, 5, &cnpj, 6, &data_abertura, 7, &telefone,
                            8, &email, 9, &endereco, 10, &cidade, 11, &estado, 12, &cep, 13, &residuo, 14, &custo, -1);
 
-        // Exibe resíduos e custos na interface
+        // Atualiza as labels com os valores de resíduos e custos
         gchar residuo_str[50], custo_str[50];
         snprintf(residuo_str, 50, "%.2f", residuo);
         snprintf(custo_str, 50, "%.2f", custo);
+
         gtk_label_set_text(residuo_atual_label, residuo_str);
         gtk_label_set_text(custo_atual_label, custo_str);
 
-        // Limpa os campos de entrada
+        // Limpa os campos de entrada para novos valores
         gtk_entry_set_text(novo_residuo_entry, "");
         gtk_entry_set_text(novo_custo_entry, "");
+
+        // Libera a memória dos strings alocados
+        g_free(nome_empresa);
+        g_free(cnpj);
+    } else {
+        // Caso nenhuma indústria esteja selecionada, limpa as labels
+        gtk_label_set_text(residuo_atual_label, "N/A");
+        gtk_label_set_text(custo_atual_label, "N/A");
     }
 }
 
@@ -840,10 +972,13 @@ void on_geral_voltar_clicked(GtkButton *button, gpointer user_data) {
 
 //------------------------------------BOTAO FECHAR O PROGRAMA-----------------
 void on_botao_sair_clicked(GtkWidget *widget, gpointer data) {
+
     gtk_main_quit();
 
 }
 void on_menu_sair_clicked(GtkButton *button, gpointer user_data) {
+
+
     GtkBuilder *builder = GTK_BUILDER(user_data);
     GtkStack *main_stack = GTK_STACK(gtk_builder_get_object(builder, "main_stack"));
     gtk_stack_set_visible_child_name(main_stack, "view_login");
