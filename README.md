@@ -2,6 +2,7 @@
 
 Programa Finalizado. o aplicativo deve ser capaz de gravar arquivos, ler, fazer modificações e gerar um relatório dos dados armazenados.
 O aplicativo fica dentro da pasta bin, junto com suas dlls necessárias para funcionar.
+
 o arquivo de DADOS.csv foi estruturado de forma simples, para que possa ser modificado abrindo com o bloco de notas.
 
 o Usuário inicial é 'admin1' com senha 'admin'. para alterar a senha do usuário. Com o programa aberto delete o arquivo DADOS.csv e depois clique na opção de cadastro de usuário para fazer um novo cadastro. 
