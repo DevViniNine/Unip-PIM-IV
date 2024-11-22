@@ -2,65 +2,6 @@
 <!-- Generated with glade 3.40.0 -->
 <interface>
   <requires lib="gtk+" version="3.24"/>
-  <object class="GtkImage" id="image1">
-    <property name="visible">True</property>
-    <property name="can-focus">False</property>
-    <property name="icon-name">gtk-apply</property>
-  </object>
-  <object class="GtkImage" id="image10">
-    <property name="visible">True</property>
-    <property name="can-focus">False</property>
-    <property name="pixbuf">static\imagens\sair.png</property>
-    <property name="icon_size">5</property>
-  </object>
-  <object class="GtkImage" id="image11">
-    <property name="visible">True</property>
-    <property name="can-focus">False</property>
-    <property name="pixbuf">static\imagens\entrar.png</property>
-    <property name="pixel-size">27</property>
-    <property name="icon_size">3</property>
-  </object>
-  <object class="GtkImage" id="image2">
-    <property name="visible">True</property>
-    <property name="can-focus">False</property>
-    <property name="icon-name">folder</property>
-  </object>
-  <object class="GtkImage" id="image3">
-    <property name="visible">True</property>
-    <property name="can-focus">False</property>
-    <property name="stock">gtk-save</property>
-  </object>
-  <object class="GtkImage" id="image4">
-    <property name="visible">True</property>
-    <property name="can-focus">False</property>
-    <property name="pixbuf">static\imagens\cadastro_industria_icon.png</property>
-  </object>
-  <object class="GtkImage" id="image5">
-    <property name="visible">True</property>
-    <property name="can-focus">False</property>
-    <property name="pixbuf">static\imagens\relatorio_icon.png</property>
-  </object>
-  <object class="GtkImage" id="image6">
-    <property name="visible">True</property>
-    <property name="can-focus">False</property>
-    <property name="pixbuf">static\imagens\cadastro_icon.png</property>
-  </object>
-  <object class="GtkImage" id="image7">
-    <property name="visible">True</property>
-    <property name="can-focus">False</property>
-    <property name="pixbuf">static\imagens\atualizar_residuos_icon.png</property>
-  </object>
-  <object class="GtkImage" id="image8">
-    <property name="visible">True</property>
-    <property name="can-focus">False</property>
-    <property name="stock">gtk-quit</property>
-    <property name="icon_size">6</property>
-  </object>
-  <object class="GtkImage" id="image9">
-    <property name="visible">True</property>
-    <property name="can-focus">False</property>
-    <property name="stock">gtk-apply</property>
-  </object>
   <object class="GtkListStore" id="liststore1">
     <columns>
       <!-- column-name razao_social -->
@@ -109,10 +50,7 @@
   </object>
   <object class="GtkWindow" id="main_window">
     <property name="can-focus">False</property>
-    <property name="title" translatable="yes">GreenFlow</property>
     <property name="resizable">False</property>
-    <property name="window-position">center</property>
-    <property name="icon">static\imagens\icon96.png</property>
     <child>
       <object class="GtkStack" id="main_stack">
         <property name="visible">True</property>
@@ -127,9 +65,9 @@
               <object class="GtkImage">
                 <property name="visible">True</property>
                 <property name="can-focus">False</property>
-                <property name="margin-top">150</property>
-                <property name="pixbuf">static\imagens\tela_login.png</property>
+                <property name="margin-top">25</property>
                 <property name="pixel-size">100</property>
+                <property name="icon-name">avatar-default-symbolic</property>
               </object>
               <packing>
                 <property name="expand">False</property>
@@ -187,15 +125,13 @@
                 <property name="visible">True</property>
                 <property name="can-focus">False</property>
                 <property name="halign">center</property>
-                <property name="spacing">50</property>
+                <property name="spacing">10</property>
                 <child>
                   <object class="GtkButton" id="botao_login">
-                    <property name="label" translatable="yes">Entrar</property>
+                    <property name="label" translatable="yes">Login</property>
                     <property name="visible">True</property>
                     <property name="can-focus">True</property>
                     <property name="receives-default">True</property>
-                    <property name="image">image11</property>
-                    <property name="always-show-image">True</property>
                     <signal name="clicked" handler="on_botao_login_clicked" swapped="no"/>
                   </object>
                   <packing>
@@ -210,8 +146,6 @@
                     <property name="visible">True</property>
                     <property name="can-focus">True</property>
                     <property name="receives-default">True</property>
-                    <property name="image">image10</property>
-                    <property name="always-show-image">True</property>
                     <signal name="clicked" handler="on_botao_sair_clicked" swapped="no"/>
                   </object>
                   <packing>
@@ -270,9 +204,8 @@
               <object class="GtkImage">
                 <property name="visible">True</property>
                 <property name="can-focus">False</property>
-                <property name="margin-top">25</property>
-                <property name="pixbuf">static\imagens\cadastro150.png</property>
                 <property name="pixel-size">100</property>
+                <property name="icon-name">contact-new-symbolic</property>
               </object>
               <packing>
                 <property name="expand">False</property>
@@ -364,8 +297,6 @@
                     <property name="visible">True</property>
                     <property name="can-focus">True</property>
                     <property name="receives-default">True</property>
-                    <property name="image">image9</property>
-                    <property name="always-show-image">True</property>
                     <signal name="clicked" handler="on_confirma_cadastro_usuario_clicked" swapped="no"/>
                   </object>
                   <packing>
@@ -376,12 +307,10 @@
                 </child>
                 <child>
                   <object class="GtkButton" id="cadastro_usuario_voltar">
-                    <property name="label">gtk-go-back</property>
+                    <property name="label" translatable="yes">Voltar</property>
                     <property name="visible">True</property>
                     <property name="can-focus">True</property>
                     <property name="receives-default">True</property>
-                    <property name="use-stock">True</property>
-                    <property name="always-show-image">True</property>
                     <signal name="clicked" handler="on_cadastro_usuario_voltar_clicked" swapped="no"/>
                   </object>
                   <packing>
@@ -401,12 +330,8 @@
               <object class="GtkLabel" id="status_cadastro_usuario">
                 <property name="visible">True</property>
                 <property name="can-focus">False</property>
-                <property name="opacity">0.5</property>
                 <property name="halign">center</property>
-                <property name="margin-top">20</property>
-                <attributes>
-                  <attribute name="weight" value="bold"/>
-                </attributes>
+                <property name="margin-top">15</property>
               </object>
               <packing>
                 <property name="expand">False</property>
@@ -431,9 +356,9 @@
               <object class="GtkImage">
                 <property name="visible">True</property>
                 <property name="can-focus">False</property>
-                <property name="margin-top">60</property>
-                <property name="pixbuf">static\imagens\menu250.png</property>
+                <property name="margin-top">25</property>
                 <property name="pixel-size">100</property>
+                <property name="icon-name">computer-symbolic</property>
               </object>
               <packing>
                 <property name="expand">False</property>
@@ -445,7 +370,7 @@
               <object class="GtkLabel">
                 <property name="visible">True</property>
                 <property name="can-focus">False</property>
-                <property name="margin-bottom">40</property>
+                <property name="margin-bottom">25</property>
                 <property name="label" translatable="yes">Menu Principal</property>
                 <attributes>
                   <attribute name="weight" value="bold"/>
@@ -462,18 +387,14 @@
               <object class="GtkBox">
                 <property name="visible">True</property>
                 <property name="can-focus">False</property>
-                <property name="halign">start</property>
-                <property name="margin-start">100</property>
-                <property name="spacing">40</property>
+                <property name="halign">center</property>
+                <property name="spacing">15</property>
                 <child>
                   <object class="GtkButton" id="menu_atualizar_dados">
-                    <property name="label" translatable="yes">Atualização de Residuos</property>
+                    <property name="label" translatable="yes">Atualização de Dados</property>
                     <property name="visible">True</property>
                     <property name="can-focus">True</property>
                     <property name="receives-default">True</property>
-                    <property name="margin-start">3</property>
-                    <property name="image">image7</property>
-                    <property name="always-show-image">True</property>
                     <signal name="clicked" handler="on_menu_atualizar_dados_clicked" swapped="no"/>
                   </object>
                   <packing>
@@ -488,15 +409,26 @@
                     <property name="visible">True</property>
                     <property name="can-focus">True</property>
                     <property name="receives-default">True</property>
-                    <property name="margin-start">23</property>
-                    <property name="image">image5</property>
-                    <property name="always-show-image">True</property>
                     <signal name="clicked" handler="on_botao_relatorios_clicked" swapped="no"/>
                   </object>
                   <packing>
                     <property name="expand">False</property>
                     <property name="fill">True</property>
                     <property name="position">1</property>
+                  </packing>
+                </child>
+                <child>
+                  <object class="GtkButton" id="cadastro_de_usuario">
+                    <property name="label" translatable="yes">Cadastro de usuário</property>
+                    <property name="visible">True</property>
+                    <property name="can-focus">True</property>
+                    <property name="receives-default">True</property>
+                    <signal name="clicked" handler="on_cadastro_de_usuario_clicked" swapped="no"/>
+                  </object>
+                  <packing>
+                    <property name="expand">False</property>
+                    <property name="fill">True</property>
+                    <property name="position">2</property>
                   </packing>
                 </child>
               </object>
@@ -511,15 +443,13 @@
                 <property name="visible">True</property>
                 <property name="can-focus">False</property>
                 <property name="halign">center</property>
-                <property name="spacing">40</property>
+                <property name="spacing">15</property>
                 <child>
                   <object class="GtkButton" id="cadastro_de_industria">
                     <property name="label" translatable="yes">Cadastrar Indústria</property>
                     <property name="visible">True</property>
                     <property name="can-focus">True</property>
                     <property name="receives-default">True</property>
-                    <property name="image">image4</property>
-                    <property name="always-show-image">True</property>
                     <signal name="clicked" handler="on_cadastro_de_industria_clicked" swapped="no"/>
                   </object>
                   <packing>
@@ -529,19 +459,17 @@
                   </packing>
                 </child>
                 <child>
-                  <object class="GtkButton" id="cadastro_de_usuario">
-                    <property name="label" translatable="yes">Cadastro de usuário</property>
+                  <object class="GtkButton" id="menu_sair">
+                    <property name="label" translatable="yes">Sair</property>
                     <property name="visible">True</property>
                     <property name="can-focus">True</property>
                     <property name="receives-default">True</property>
-                    <property name="image">image6</property>
-                    <property name="always-show-image">True</property>
-                    <signal name="clicked" handler="on_cadastro_de_usuario_clicked" swapped="no"/>
+                    <signal name="clicked" handler="on_menu_sair_clicked" swapped="no"/>
                   </object>
                   <packing>
                     <property name="expand">False</property>
                     <property name="fill">True</property>
-                    <property name="position">1</property>
+                    <property name="position">2</property>
                   </packing>
                 </child>
               </object>
@@ -552,36 +480,15 @@
               </packing>
             </child>
             <child>
-              <object class="GtkButton" id="menu_sair">
-                <property name="label" translatable="yes">Sair</property>
+              <object class="GtkLabel">
                 <property name="visible">True</property>
-                <property name="can-focus">True</property>
-                <property name="receives-default">True</property>
-                <property name="halign">center</property>
-                <property name="margin-top">50</property>
-                <property name="image">image8</property>
-                <property name="always-show-image">True</property>
-                <signal name="clicked" handler="on_menu_sair_clicked" swapped="no"/>
+                <property name="can-focus">False</property>
+                <property name="label" translatable="yes">label_vazia</property>
               </object>
               <packing>
                 <property name="expand">False</property>
                 <property name="fill">True</property>
                 <property name="position">4</property>
-              </packing>
-            </child>
-            <child>
-              <object class="GtkLabel">
-                <property name="visible">True</property>
-                <property name="can-focus">False</property>
-                <property name="opacity">0.5</property>
-                <property name="halign">center</property>
-                <property name="margin-top">10</property>
-                <property name="label" translatable="yes">GreenFlow - 2024</property>
-              </object>
-              <packing>
-                <property name="expand">False</property>
-                <property name="fill">True</property>
-                <property name="position">5</property>
               </packing>
             </child>
           </object>
@@ -601,14 +508,12 @@
               <object class="GtkBox">
                 <property name="visible">True</property>
                 <property name="can-focus">False</property>
-                <property name="halign">center</property>
-                <property name="margin-top">25</property>
                 <child>
                   <object class="GtkImage">
                     <property name="visible">True</property>
                     <property name="can-focus">False</property>
-                    <property name="pixbuf">static\imagens\cadastro_industria150.png</property>
                     <property name="pixel-size">100</property>
+                    <property name="icon-name">contact-new-symbolic</property>
                   </object>
                   <packing>
                     <property name="expand">False</property>
@@ -620,7 +525,7 @@
                   <object class="GtkLabel">
                     <property name="visible">True</property>
                     <property name="can-focus">False</property>
-                    <property name="label" translatable="yes">Cadastro de industrias</property>
+                    <property name="label" translatable="yes">Cadastro de industria</property>
                     <attributes>
                       <attribute name="weight" value="bold"/>
                       <attribute name="scale" value="2"/>
@@ -655,9 +560,6 @@
               <object class="GtkEntry" id="cadastro_nome_industria">
                 <property name="visible">True</property>
                 <property name="can-focus">True</property>
-                <property name="margin-start">15</property>
-                <property name="margin-end">15</property>
-                <property name="margin-bottom">5</property>
               </object>
               <packing>
                 <property name="expand">False</property>
@@ -676,9 +578,10 @@
                     <property name="visible">True</property>
                     <property name="can-focus">False</property>
                     <property name="halign">center</property>
-                    <property name="margin-start">10</property>
-                    <property name="margin-end">80</property>
                     <property name="label" translatable="yes">Nome responsavel</property>
+                    <attributes>
+                      <attribute name="weight" value="bold"/>
+                    </attributes>
                   </object>
                   <packing>
                     <property name="expand">False</property>
@@ -690,8 +593,10 @@
                   <object class="GtkLabel">
                     <property name="visible">True</property>
                     <property name="can-focus">False</property>
-                    <property name="margin-start">10</property>
                     <property name="label" translatable="yes">CPF do responsavel</property>
+                    <attributes>
+                      <attribute name="weight" value="bold"/>
+                    </attributes>
                   </object>
                   <packing>
                     <property name="expand">False</property>
@@ -711,8 +616,7 @@
                 <property name="visible">True</property>
                 <property name="can-focus">False</property>
                 <property name="halign">center</property>
-                <property name="margin-bottom">5</property>
-                <property name="spacing">40</property>
+                <property name="spacing">15</property>
                 <child>
                   <object class="GtkEntry" id="nome_responsavel">
                     <property name="visible">True</property>
@@ -758,8 +662,6 @@
               <object class="GtkEntry" id="cadastro_razao_social">
                 <property name="visible">True</property>
                 <property name="can-focus">True</property>
-                <property name="margin-start">15</property>
-                <property name="margin-end">15</property>
               </object>
               <packing>
                 <property name="expand">False</property>
@@ -783,9 +685,6 @@
               <object class="GtkEntry" id="cadastro_nome_fantasia">
                 <property name="visible">True</property>
                 <property name="can-focus">True</property>
-                <property name="margin-start">15</property>
-                <property name="margin-end">15</property>
-                <property name="margin-bottom">5</property>
               </object>
               <packing>
                 <property name="expand">False</property>
@@ -798,8 +697,7 @@
                 <property name="visible">True</property>
                 <property name="can-focus">False</property>
                 <property name="halign">center</property>
-                <property name="spacing">107</property>
-                <property name="homogeneous">True</property>
+                <property name="spacing">15</property>
                 <child>
                   <object class="GtkLabel">
                     <property name="visible">True</property>
@@ -847,9 +745,7 @@
               <object class="GtkBox">
                 <property name="visible">True</property>
                 <property name="can-focus">False</property>
-                <property name="halign">center</property>
-                <property name="margin-bottom">5</property>
-                <property name="spacing">28</property>
+                <property name="spacing">10</property>
                 <child>
                   <object class="GtkEntry" id="cadastro_cnpj">
                     <property name="visible">True</property>
@@ -906,9 +802,6 @@
               <object class="GtkEntry" id="cadastro_email">
                 <property name="visible">True</property>
                 <property name="can-focus">True</property>
-                <property name="margin-start">15</property>
-                <property name="margin-end">15</property>
-                <property name="margin-bottom">5</property>
               </object>
               <packing>
                 <property name="expand">False</property>
@@ -932,9 +825,6 @@
               <object class="GtkEntry" id="cadastro_endereco">
                 <property name="visible">True</property>
                 <property name="can-focus">True</property>
-                <property name="margin-start">15</property>
-                <property name="margin-end">15</property>
-                <property name="margin-bottom">5</property>
               </object>
               <packing>
                 <property name="expand">False</property>
@@ -947,13 +837,11 @@
                 <property name="visible">True</property>
                 <property name="can-focus">False</property>
                 <property name="halign">center</property>
-                <property name="spacing">143</property>
-                <property name="homogeneous">True</property>
+                <property name="spacing">15</property>
                 <child>
                   <object class="GtkLabel">
                     <property name="visible">True</property>
                     <property name="can-focus">False</property>
-                    <property name="margin-end">14</property>
                     <property name="label" translatable="yes">Cidade</property>
                   </object>
                   <packing>
@@ -997,8 +885,7 @@
               <object class="GtkBox">
                 <property name="visible">True</property>
                 <property name="can-focus">False</property>
-                <property name="halign">center</property>
-                <property name="spacing">28</property>
+                <property name="spacing">10</property>
                 <child>
                   <object class="GtkEntry" id="cadastro_cidade">
                     <property name="visible">True</property>
@@ -1051,8 +938,6 @@
                     <property name="visible">True</property>
                     <property name="can-focus">True</property>
                     <property name="receives-default">True</property>
-                    <property name="image">image1</property>
-                    <property name="always-show-image">True</property>
                     <signal name="clicked" handler="on_confirmar_cadastro_industria_clicked" swapped="no"/>
                   </object>
                   <packing>
@@ -1063,12 +948,10 @@
                 </child>
                 <child>
                   <object class="GtkButton" id="cadastro_industria_voltar">
-                    <property name="label">gtk-go-back</property>
+                    <property name="label" translatable="yes">Voltar</property>
                     <property name="visible">True</property>
                     <property name="can-focus">True</property>
                     <property name="receives-default">True</property>
-                    <property name="use-stock">True</property>
-                    <property name="always-show-image">True</property>
                     <signal name="clicked" handler="on_cadastro_industria_voltar_clicked" swapped="no"/>
                   </object>
                   <packing>
@@ -1089,7 +972,6 @@
                 <property name="visible">True</property>
                 <property name="can-focus">False</property>
                 <property name="opacity">0.5</property>
-                <property name="margin-bottom">10</property>
                 <attributes>
                   <attribute name="weight" value="bold"/>
                 </attributes>
@@ -1116,9 +998,9 @@
               <object class="GtkImage">
                 <property name="visible">True</property>
                 <property name="can-focus">False</property>
-                <property name="margin-top">25</property>
-                <property name="pixbuf">static\imagens\relatorio150.png</property>
+                <property name="margin-top">15</property>
                 <property name="pixel-size">100</property>
+                <property name="icon-name">emblem-documents-symbolic</property>
               </object>
               <packing>
                 <property name="expand">False</property>
@@ -1232,13 +1114,13 @@
                     <property name="can-focus">False</property>
                     <property name="halign">center</property>
                     <property name="margin-top">10</property>
-                    <property name="margin-bottom">4</property>
-                    <property name="spacing">124</property>
+                    <property name="margin-bottom">10</property>
+                    <property name="spacing">15</property>
                     <child>
                       <object class="GtkLabel">
                         <property name="visible">True</property>
                         <property name="can-focus">False</property>
-                        <property name="label" translatable="yes">Total de Custos R$ :</property>
+                        <property name="label" translatable="yes">Total de custos</property>
                         <attributes>
                           <attribute name="weight" value="bold"/>
                         </attributes>
@@ -1253,7 +1135,7 @@
                       <object class="GtkLabel">
                         <property name="visible">True</property>
                         <property name="can-focus">False</property>
-                        <property name="label" translatable="yes">Total de residuos KG :</property>
+                        <property name="label" translatable="yes">Total de residuos</property>
                         <attributes>
                           <attribute name="weight" value="bold"/>
                         </attributes>
@@ -1277,7 +1159,7 @@
                     <property name="can-focus">False</property>
                     <property name="halign">center</property>
                     <property name="margin-bottom">15</property>
-                    <property name="spacing">40</property>
+                    <property name="spacing">15</property>
                     <child>
                       <object class="GtkEntry" id="total_custo">
                         <property name="visible">True</property>
@@ -1332,8 +1214,6 @@
                     <property name="visible">True</property>
                     <property name="can-focus">True</property>
                     <property name="receives-default">True</property>
-                    <property name="image">image3</property>
-                    <property name="always-show-image">True</property>
                     <signal name="clicked" handler="on_salvar_relatorio_clicked" swapped="no"/>
                   </object>
                   <packing>
@@ -1344,12 +1224,10 @@
                 </child>
                 <child>
                   <object class="GtkButton" id="abrir_local_relatorios">
-                    <property name="label" translatable="yes">Abrir Local do arquivo</property>
+                    <property name="label" translatable="yes">Abrir pasta de Relatorios</property>
                     <property name="visible">True</property>
                     <property name="can-focus">True</property>
                     <property name="receives-default">True</property>
-                    <property name="image">image2</property>
-                    <property name="always-show-image">True</property>
                     <signal name="clicked" handler="on_abrir_local_relatorios_clicked" swapped="no"/>
                   </object>
                   <packing>
@@ -1360,12 +1238,10 @@
                 </child>
                 <child>
                   <object class="GtkButton" id="relatorio_voltar">
-                    <property name="label">gtk-go-back</property>
+                    <property name="label" translatable="yes">Voltar</property>
                     <property name="visible">True</property>
                     <property name="can-focus">True</property>
                     <property name="receives-default">True</property>
-                    <property name="use-stock">True</property>
-                    <property name="always-show-image">True</property>
                     <signal name="clicked" handler="on_relatorio_voltar_clicked" swapped="no"/>
                   </object>
                   <packing>
@@ -1385,7 +1261,6 @@
               <object class="GtkLabel" id="status_relatorio">
                 <property name="visible">True</property>
                 <property name="can-focus">False</property>
-                <property name="opacity">0.5</property>
                 <property name="halign">center</property>
                 <property name="margin-top">15</property>
                 <property name="margin-bottom">20</property>
@@ -1417,7 +1292,6 @@
                 <property name="visible">True</property>
                 <property name="can-focus">False</property>
                 <property name="margin-top">25</property>
-                <property name="pixbuf">static\imagens\atualizar_residuos.png</property>
                 <property name="pixel-size">100</property>
               </object>
               <packing>
@@ -1620,7 +1494,7 @@
                 <property name="visible">True</property>
                 <property name="can-focus">False</property>
                 <property name="halign">center</property>
-                <property name="margin-top">15</property>
+                <property name="margin-top">30</property>
                 <property name="spacing">40</property>
                 <child>
                   <object class="GtkEntry" id="novo_residuo">
@@ -1706,7 +1580,7 @@
                 <property name="can-focus">False</property>
                 <property name="opacity">0.5</property>
                 <property name="halign">center</property>
-                <property name="margin-bottom">15</property>
+                <property name="label" translatable="yes">teste testeteste</property>
                 <attributes>
                   <attribute name="weight" value="bold"/>
                 </attributes>

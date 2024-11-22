@@ -1,8 +1,8 @@
 nome_industria,nome_responsavel,cpf_responsavel,razao_social,nome_fantasia,cnpj,data_abertura,telefone,email,endereco,cidade,estado,cep,residuo,custo
-EcoFabrica,Cláudia Verde,12345678901,EcoFabrica LTDA,EcoFabrica,01234567890123,01/01/2021,11987654321,contato@ecofabrica.com.br,Rua Sustentável,São Paulo,SP,01234567,111.00,111.00
-Recycletech,Andréia Lima,23456789012,Recycletech S/A,Recycletech,09876543210987,15/03/2019,11876543210,contato@recycletech.com.br,Avenida do Reciclar,Campinas,SP,13000000,111.00,111.11
+EcoFabrica,Cláudia Verde,12345678901,EcoFabrica LTDA,EcoFabrica,01234567890123,01/01/2021,11987654321,contato@ecofabrica.com.br,Rua Sustentável,São Paulo,SP,01234567,555.00,555.00
+Recycletech,Andréia Lima,23456789012,Recycletech S/A,Recycletech,09876543210987,15/03/2019,11876543210,contato@recycletech.com.br,Avenida do Reciclar,Campinas,SP,13000000,150.00,300.00
 SolarPower,Pedro Sol,34567890123,SolarPower LTDA,Energia Solar,12345678901234,20/05/2020,11765432109,contato@solarpower.com.br,Rua da Energia,Rio de Janeiro,RJ,20000000,50.00,200.00
-VerdeLimpo,Maria Floresta,45678901234,VerdeLimpo LTDA,Verde Limpo,23456789012345,10/07/2018,11654321098,contato@verdelimpo.com.br,Rua Verde,Belo Horizonte,MG,30100000,555.00,555.00
+VerdeLimpo,Maria Floresta,45678901234,VerdeLimpo LTDA,Verde Limpo,23456789012345,10/07/2018,11654321098,contato@verdelimpo.com.br,Rua Verde,Belo Horizonte,MG,30100000,100.00,400.00
 EcoMóveis,Lucas Carvalho,56789012345,EcoMóveis LTDA,Móveis Sustentáveis,34567890123456,25/09/2017,11543210987,contato@ecomoveis.com.br,Avenida dos Móveis Sustentáveis,Curitiba,PR,80000000,80.00,250.00
 Indústria de Biocombustíveis,Ana Energia,67890123456,Indústria de Biocombustíveis LTDA,BioFuels,45678901234567,30/11/2022,11432109876,contato@biocombustiveis.com.br,Rua do Bio,Fortaleza,CE,60000000,300.00,800.00
 Plástico Verde,Rafael Recicla,78901234567,Plástico Verde LTDA,Plástico Sustentável,56789012345678,05/02/2021,11321098765,contato@plasticoverde.com.br,Rua do Plástico,Salvador,BA,40000000,250.00,700.00
@@ -13,7 +13,7 @@ BioPlástico,Mariana Ecologista,12345678912,BioPlástico LTDA,BioPlástico Brasi
 Energia Eólica,Thiago Ventos,23456789013,Energia Eólica LTDA,Ventos do Norte,09876543210988,15/04/2021,11876543211,contato@energiaeolica.com.br,Avenida dos Ventos,Fortaleza,CE,60000001,90.00,250.00
 ReciclaFácil,Roberta Verde,34567890124,ReciclaFácil LTDA,ReciclaFácil,12345678901235,20/06/2020,11765432110,contato@reciclafacil.com.br,Rua da Reciclagem,Rio de Janeiro,RJ,20000001,200.00,500.00
 Fábrica Sustentável,Leonardo Floresta,45678901235,Fábrica Sustentável LTDA,Sustentável Brasil,23456789012346,10/09/2019,11654321099,contato@fabricasustentavel.com.br,Rua da Sustentabilidade,Belo Horizonte,MG,30100001,300.00,800.00
-Verde e Limpo,Paula Natureza,56789012346,Verde e Limpo LTDA,Verde e Limpo,34567890123457,25/11/2022,11543210988,contato@verdeelimpocom.br,Avenida da Natureza,Curitiba,PR,80000001,55555.055555.00,55555.00
+Verde e Limpo,Paula Natureza,56789012346,Verde e Limpo LTDA,Verde e Limpo,34567890123457,25/11/2022,11543210988,contato@verdeelimpocom.br,Avenida da Natureza,Curitiba,PR,80000001,150.00,400.00
 EcoCimento,Daniel Construtor,67890123457,EcoCimento LTDA,Cimento Verde,45678901234568,30/01/2021,11432109877,contato@ecocimento.com.br,Rua do Cimento,Salvador,BA,40000001,250.00,600.00
 AgroSustentável,Simone Agricultora,78901234568,AgroSustentável LTDA,Agro Verde,56789012345679,05/03/2023,11321098766,contato@agrosustentavel.com.br,Avenida do Agro,Natal,RN,59000001,180.00,450.00
 Indústria de Energia Solar,Caio Sol,89012345679,Indústria de Energia Solar LTDA,Solar Brasil,67890123456780,12/07/2022,11210987655,contato@energia-solar.com.br,Rua do Sol,Recife,PE,50000001,350.00,1000.00

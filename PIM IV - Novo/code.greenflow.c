@@ -138,8 +138,57 @@ void on_botao_relatorios_clicked(GtkWidget *widget, gpointer data) {
 void on_menu_atualizar_dados_clicked(GtkButton *button, gpointer data) {
     GtkBuilder *builder = (GtkBuilder *)data;
     GtkStack *main_stack = GTK_STACK(gtk_builder_get_object(builder, "main_stack"));
+    GtkListStore *liststore = GTK_LIST_STORE(gtk_builder_get_object(builder, "liststore2"));
+
+    // Limpa o liststore
+    gtk_list_store_clear(liststore);
+
+    // Recarrega os dados do arquivo CSV
+    FILE *file = fopen(INDUSTRIAS_CSV, "r");
+    if (!file) {
+        g_printerr("Erro ao abrir o arquivo CSV para recarregar a lista.\n");
+        gtk_stack_set_visible_child_name(main_stack, "atualizacao_de_dados");
+        return;
+    }
+
+    char line[1024];
+    while (fgets(line, sizeof(line), file)) {
+        char *tokens[15];
+        int i = 0;
+
+        tokens[i++] = strtok(line, ",");
+        while (tokens[i - 1] != NULL && i < 15) {
+            tokens[i++] = strtok(NULL, ",");
+        }
+
+        // Adiciona os dados ao liststore
+        GtkTreeIter iter;
+        gtk_list_store_append(liststore, &iter);
+        gtk_list_store_set(liststore, &iter,
+            0, tokens[0],  // Nome da indústria
+            1, tokens[1],  // Nome do responsável
+            2, tokens[2],  // CPF do responsável
+            3, tokens[3],  // Razão social
+            4, tokens[4],  // Nome fantasia
+            5, tokens[5],  // CNPJ
+            6, tokens[6],  // Data de abertura
+            7, tokens[7],  // Telefone
+            8, tokens[8],  // Email
+            9, tokens[9],  // Endereço
+            10, tokens[10], // Cidade
+            11, tokens[11], // Estado
+            12, tokens[12], // CEP
+            13, tokens[13], // Resíduo
+            14, tokens[14], // Custo
+            -1);
+    }
+
+    fclose(file);
+
+    // Exibe a visualização de atualização
     gtk_stack_set_visible_child_name(main_stack, "atualizacao_de_dados");
 }
+
 
 
 
@@ -273,15 +322,31 @@ void on_confirma_atualizar_dados_clicked(GtkButton *button, gpointer data) {
     const gchar *novo_residuo = gtk_entry_get_text(novo_residuo_entry);
     const gchar *novo_custo = gtk_entry_get_text(novo_custo_entry);
 
+    // Verifica se os campos estão vazios
     if (strlen(novo_residuo) == 0 || strlen(novo_custo) == 0) {
         gtk_label_set_text(status_label, "Os campos de resíduos e custos não podem ser vazios.");
         return;
     }
 
+    // Valida se os valores inseridos são numéricos
+    for (int i = 0; novo_residuo[i] != '\0'; i++) {
+        if (!isdigit(novo_residuo[i]) && novo_residuo[i] != '.') {
+            gtk_label_set_text(status_label, "Resíduo deve conter apenas números ou ponto decimal.");
+            return;
+        }
+    }
+
+    for (int i = 0; novo_custo[i] != '\0'; i++) {
+        if (!isdigit(novo_custo[i]) && novo_custo[i] != '.') {
+            gtk_label_set_text(status_label, "Custo deve conter apenas números ou ponto decimal.");
+            return;
+        }
+    }
+
     gdouble novo_residuo_val = atof(novo_residuo);
     gdouble novo_custo_val = atof(novo_custo);
 
-    // Verifica se os valores são válidos
+    // Verifica se os valores são positivos
     if (novo_residuo_val < 0 || novo_custo_val < 0) {
         gtk_label_set_text(status_label, "Os valores de resíduos e custos devem ser positivos.");
         return;
@@ -316,56 +381,52 @@ void on_confirma_atualizar_dados_clicked(GtkButton *button, gpointer data) {
         char line[1024];
         gboolean updated = FALSE;
 
-        while (fgets(line, sizeof(line), file)) {
-    char *tokens[15];
-    int i = 0;
-
-    // Divide a linha nos campos esperados
-    tokens[i++] = strtok(line, ",");
-    while (tokens[i - 1] != NULL && i < 15) {
-        tokens[i++] = strtok(NULL, ",");
-    }
-
-    // Certifique-se de que a linha tem todos os campos necessários
-    if (i < 15 || tokens[0] == NULL || tokens[5] == NULL) {
-        continue; // Ignora linhas incompletas ou inválidas
-    }
-
-    // Remove espaços extras e quebra de linha dos tokens finais
-    for (int j = 0; j < i; j++) {
-        if (tokens[j]) {
-            char *newline_pos = strchr(tokens[j], '\n');
-            if (newline_pos) *newline_pos = '\0';
+        // Ignora a primeira linha (cabeçalho) e escreve diretamente no arquivo temporário
+        if (fgets(line, sizeof(line), file)) {
+            fputs(line, temp_file); // Copia o cabeçalho para o arquivo temporário
         }
-    }
 
-    // Atualiza os dados da indústria selecionada
-    if (strcmp(tokens[0], nome_empresa) == 0 && strcmp(tokens[5], cnpj) == 0) {
-        snprintf(tokens[13], 50, "%.2f", novo_residuo_val);
-        snprintf(tokens[14], 50, "%.2f", novo_custo_val);
-        updated = TRUE;
-    }
+        while (fgets(line, sizeof(line), file)) {
+            char *tokens[15];
+            int i = 0;
 
-    // Reescreve a linha no arquivo temporário
-    fprintf(temp_file, "%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s\n",
-            tokens[0], tokens[1], tokens[2], tokens[3], tokens[4],
-            tokens[5], tokens[6], tokens[7], tokens[8], tokens[9],
-            tokens[10], tokens[11], tokens[12], tokens[13], tokens[14]);
-}
+            tokens[i++] = strtok(line, ",");
+            while (tokens[i - 1] != NULL && i < 15) {
+                tokens[i++] = strtok(NULL, ",");
+            }
+
+            if (i < 15 || tokens[0] == NULL || tokens[5] == NULL) {
+                continue;
+            }
+
+            for (int j = 0; j < i; j++) {
+                if (tokens[j]) {
+                    char *newline_pos = strchr(tokens[j], '\n');
+                    if (newline_pos) *newline_pos = '\0';
+                }
+            }
+
+            if (strcmp(tokens[0], nome_empresa) == 0 && strcmp(tokens[5], cnpj) == 0) {
+                snprintf(tokens[13], 50, "%.2f", novo_residuo_val);
+                snprintf(tokens[14], 50, "%.2f", novo_custo_val);
+                updated = TRUE;
+            }
+
+            fprintf(temp_file, "%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s\n",
+                    tokens[0], tokens[1], tokens[2], tokens[3], tokens[4],
+                    tokens[5], tokens[6], tokens[7], tokens[8], tokens[9],
+                    tokens[10], tokens[11], tokens[12], tokens[13], tokens[14]);
+        }
 
         fclose(file);
         fclose(temp_file);
 
-        // Substitui o arquivo original pelo temporário
         if (updated) {
             if (remove(INDUSTRIAS_CSV) == 0 && rename("temp.csv", INDUSTRIAS_CSV) == 0) {
                 gtk_label_set_text(status_label, "Dados atualizados com sucesso.");
-
-                // Recarrega o ListStore
                 gtk_list_store_clear(liststore);
                 atualizar_treeview(liststore);
 
-                // Limpa os campos de entrada
                 gtk_entry_set_text(novo_residuo_entry, "");
                 gtk_entry_set_text(novo_custo_entry, "");
             } else {
@@ -382,6 +443,7 @@ void on_confirma_atualizar_dados_clicked(GtkButton *button, gpointer data) {
         gtk_label_set_text(status_label, "Nenhuma indústria selecionada.");
     }
 }
+
 
 
 
@@ -982,7 +1044,8 @@ int main(int argc, char *argv[]) {
     GtkListStore *liststore = GTK_LIST_STORE(gtk_builder_get_object(builder, "liststore2"));
     GtkTreeView *treeview = GTK_TREE_VIEW(gtk_builder_get_object(builder, "atualizacao_treeview"));
     atualizar_treeview(liststore);
-    // Conecta os sinais aos callbacks
+
+    //----OS MARAVILHOSOS CALLBACKS
     gtk_builder_add_callback_symbols(
         builder,
         "on_confirma_cadastro_usuario_clicked", G_CALLBACK(on_confirma_cadastro_usuario_clicked),
@@ -994,38 +1057,26 @@ int main(int argc, char *argv[]) {
         "on_confirmar_cadastro_industria_clicked", G_CALLBACK(on_confirmar_cadastro_industria_clicked),
         "on_abrir_local_relatorios_clicked", G_CALLBACK(on_abrir_local_relatorios_clicked),
         "on_botao_relatorios_clicked", G_CALLBACK(on_botao_relatorios_clicked),
-                                     "on_salvar_relatorio_clicked", G_CALLBACK(on_salvar_relatorio_clicked),
-                                     "on_relatorio_voltar_clicked", G_CALLBACK(on_relatorio_voltar_clicked),
-                                     "on_cadastro_usuario_voltar_clicked", G_CALLBACK(on_cadastro_usuario_voltar_clicked),
-                                     "on_cadastro_industria_voltar_clicked", G_CALLBACK(on_cadastro_industria_voltar_clicked),
-
-                                     "on_menu_atualizar_dados_clicked", G_CALLBACK(on_menu_atualizar_dados_clicked),
-                                     "on_menu_sair_clicked", G_CALLBACK(on_menu_sair_clicked),
-
-
-                                    // "on_treeview_selection_changed", G_CALLBACK(on_treeview_selection_changed),
-
-
-                                     "on_confirma_atualizar_dados_clicked", G_CALLBACK(on_confirma_atualizar_dados_clicked),
-
-
+        "on_salvar_relatorio_clicked", G_CALLBACK(on_salvar_relatorio_clicked),
+        "on_relatorio_voltar_clicked", G_CALLBACK(on_relatorio_voltar_clicked),
+        "on_cadastro_usuario_voltar_clicked", G_CALLBACK(on_cadastro_usuario_voltar_clicked),
+        "on_cadastro_industria_voltar_clicked", G_CALLBACK(on_cadastro_industria_voltar_clicked),
+        "on_menu_atualizar_dados_clicked", G_CALLBACK(on_menu_atualizar_dados_clicked),
+        "on_menu_sair_clicked", G_CALLBACK(on_menu_sair_clicked),
+        "on_confirma_atualizar_dados_clicked", G_CALLBACK(on_confirma_atualizar_dados_clicked),
         NULL
     );
 
 
-    // Cria e preenche a TreeView
     GtkTreeSelection *selection = gtk_tree_view_get_selection(treeview);
     g_signal_connect(selection, "changed", G_CALLBACK(on_treeview_selection_changed), builder);
 
-    // Conecta os sinais da interface
+
     gtk_builder_connect_signals(builder, builder);
 
-    // Exibe a janela principal
+
     gtk_widget_show_all(main_window);
-
     gtk_main();
-
-    // Libera o builder
     g_object_unref(builder);
     return 0;
 }
