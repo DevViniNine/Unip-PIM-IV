@@ -1,0 +1,25 @@
+Requisitos para compilar :
+
+1. Instalação de dependências
+* GTK+ 3.0: Certifique-se de ter o GTK+ 3.0 instalado no seu sistema. No Linux, você pode usar o comando:
+"sudo apt-get install libgtk-3-dev"
+
+No Windows, você precisará instalar o GTK+ usando o MSYS2 ou outro método para configurar a biblioteca no seu sistema.
+
+
+2. Estrutura de diretórios
+* Certifique-se de que os arquivos necessários (por exemplo, code.greenflow.c, resources.o, version.o, user_interface.glade) estejam na estrutura de diretórios correta.
+
+
+3. Compilação do código
+* Utilize o seguinte comando para compilar o código com o gcc:
+"gcc -o GreenFlow-v1.1.exe code.greenflow.c resources.o version.o `pkg-config --cflags --libs gtk+-3.0` -mwindows"
+
+Esse comando gera o executável GreenFlow-v1.1.exe, incluindo as bibliotecas GTK+ e os arquivos de recursos necessários.
+
+4. Executando o programa
+* Após a compilação, o programa estará pronto para ser executado. Caso haja problemas, verifique as mensagens de erro do compilador para identificar e corrigir os problemas.
+
+5. Observações
+Se você está usando o -mwindows para compilar o programa como um aplicativo Windows sem janela de console, verifique se todas as dependências e a configuração estão corretas.
+A ferramenta pkg-config deve estar corretamente configurada para fornecer as opções necessárias de compilação e linkedição do GTK+.
