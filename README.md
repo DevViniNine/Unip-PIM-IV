@@ -2,7 +2,7 @@
 
 Projeto Finalizado: O Green Flow App é um aplicativo capaz de gravar, ler, fazer modificações e gerar relatórios dos dados armazenados. O aplicativo é colocado dentro da pasta bin, junto com as DLLs necessárias para seu funcionamento.
 
-Para fazer o download, procure a aba 'Releases', que geralmente fica no lado esquerdo da página, e clique em 'GreenFlow v1.1'.
+Para fazer o download, procure a aba 'Releases', que geralmente fica no lado esquerdo da página, e clique em 'GreenFlow v1.1.3'.
 
 # Estrutura do Arquivo
 
