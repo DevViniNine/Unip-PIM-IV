@@ -293,6 +293,179 @@
           </packing>
         </child>
         <child>
+          <object class="GtkBox" id="view_menu_principal">
+            <property name="visible">True</property>
+            <property name="can-focus">False</property>
+            <property name="valign">center</property>
+            <property name="orientation">vertical</property>
+            <property name="spacing">10</property>
+            <child>
+              <object class="GtkImage">
+                <property name="visible">True</property>
+                <property name="can-focus">False</property>
+                <property name="margin-top">60</property>
+                <property name="pixbuf">static\imagens\menu250.png</property>
+                <property name="pixel-size">100</property>
+              </object>
+              <packing>
+                <property name="expand">False</property>
+                <property name="fill">True</property>
+                <property name="position">0</property>
+              </packing>
+            </child>
+            <child>
+              <object class="GtkLabel">
+                <property name="visible">True</property>
+                <property name="can-focus">False</property>
+                <property name="margin-bottom">40</property>
+                <property name="label" translatable="yes">Menu Principal</property>
+                <attributes>
+                  <attribute name="weight" value="bold"/>
+                  <attribute name="scale" value="2"/>
+                </attributes>
+              </object>
+              <packing>
+                <property name="expand">False</property>
+                <property name="fill">True</property>
+                <property name="position">1</property>
+              </packing>
+            </child>
+            <child>
+              <object class="GtkBox">
+                <property name="visible">True</property>
+                <property name="can-focus">False</property>
+                <property name="halign">center</property>
+                <property name="valign">center</property>
+                <property name="spacing">40</property>
+                <child>
+                  <object class="GtkButton" id="menu_atualizar_dados">
+                    <property name="label" translatable="yes"> Atualização de Residuos</property>
+                    <property name="visible">True</property>
+                    <property name="can-focus">True</property>
+                    <property name="receives-default">True</property>
+                    <property name="image">image7</property>
+                    <property name="always-show-image">True</property>
+                    <signal name="clicked" handler="on_menu_atualizar_dados_clicked" swapped="no"/>
+                  </object>
+                  <packing>
+                    <property name="expand">False</property>
+                    <property name="fill">True</property>
+                    <property name="position">0</property>
+                  </packing>
+                </child>
+                <child>
+                  <object class="GtkButton" id="botao_relatorios">
+                    <property name="label" translatable="yes">Relatórios                </property>
+                    <property name="visible">True</property>
+                    <property name="can-focus">True</property>
+                    <property name="receives-default">True</property>
+                    <property name="halign">center</property>
+                    <property name="valign">center</property>
+                    <property name="hexpand">False</property>
+                    <property name="image">image5</property>
+                    <property name="always-show-image">True</property>
+                    <signal name="clicked" handler="on_botao_relatorios_clicked" swapped="no"/>
+                  </object>
+                  <packing>
+                    <property name="expand">False</property>
+                    <property name="fill">True</property>
+                    <property name="position">1</property>
+                  </packing>
+                </child>
+              </object>
+              <packing>
+                <property name="expand">False</property>
+                <property name="fill">True</property>
+                <property name="position">2</property>
+              </packing>
+            </child>
+            <child>
+              <object class="GtkBox">
+                <property name="visible">True</property>
+                <property name="can-focus">False</property>
+                <property name="halign">center</property>
+                <property name="valign">center</property>
+                <property name="spacing">40</property>
+                <child>
+                  <object class="GtkButton" id="cadastro_de_industria">
+                    <property name="label" translatable="yes">Cadastrar Indústria      </property>
+                    <property name="visible">True</property>
+                    <property name="can-focus">True</property>
+                    <property name="receives-default">True</property>
+                    <property name="image">image4</property>
+                    <property name="always-show-image">True</property>
+                    <signal name="clicked" handler="on_cadastro_de_industria_clicked" swapped="no"/>
+                  </object>
+                  <packing>
+                    <property name="expand">False</property>
+                    <property name="fill">True</property>
+                    <property name="position">0</property>
+                  </packing>
+                </child>
+                <child>
+                  <object class="GtkButton" id="cadastro_de_usuario">
+                    <property name="label" translatable="yes">Cadastro de usuário    </property>
+                    <property name="visible">True</property>
+                    <property name="can-focus">True</property>
+                    <property name="receives-default">True</property>
+                    <property name="image">image6</property>
+                    <property name="always-show-image">True</property>
+                    <signal name="clicked" handler="on_cadastro_de_usuario_clicked" swapped="no"/>
+                  </object>
+                  <packing>
+                    <property name="expand">False</property>
+                    <property name="fill">True</property>
+                    <property name="position">1</property>
+                  </packing>
+                </child>
+              </object>
+              <packing>
+                <property name="expand">False</property>
+                <property name="fill">True</property>
+                <property name="position">3</property>
+              </packing>
+            </child>
+            <child>
+              <object class="GtkButton" id="menu_sair">
+                <property name="label" translatable="yes">Sair</property>
+                <property name="visible">True</property>
+                <property name="can-focus">True</property>
+                <property name="receives-default">True</property>
+                <property name="halign">center</property>
+                <property name="margin-top">50</property>
+                <property name="image">image8</property>
+                <property name="always-show-image">True</property>
+                <signal name="clicked" handler="on_menu_sair_clicked" swapped="no"/>
+              </object>
+              <packing>
+                <property name="expand">False</property>
+                <property name="fill">True</property>
+                <property name="position">4</property>
+              </packing>
+            </child>
+            <child>
+              <object class="GtkLabel">
+                <property name="visible">True</property>
+                <property name="can-focus">False</property>
+                <property name="opacity">0.5</property>
+                <property name="halign">center</property>
+                <property name="margin-top">10</property>
+                <property name="label" translatable="yes">GreenFlow - 2024</property>
+              </object>
+              <packing>
+                <property name="expand">False</property>
+                <property name="fill">True</property>
+                <property name="position">5</property>
+              </packing>
+            </child>
+          </object>
+          <packing>
+            <property name="name">view_menu_principal</property>
+            <property name="title" translatable="yes">view_menu_principal</property>
+            <property name="position">1</property>
+          </packing>
+        </child>
+        <child>
           <object class="GtkBox" id="view_cadastro_usuario">
             <property name="visible">True</property>
             <property name="can-focus">False</property>
@@ -451,180 +624,6 @@
           <packing>
             <property name="name">view_cadastro_usuario</property>
             <property name="title" translatable="yes">page2</property>
-            <property name="position">1</property>
-          </packing>
-        </child>
-        <child>
-          <object class="GtkBox" id="view_menu_principal">
-            <property name="visible">True</property>
-            <property name="can-focus">False</property>
-            <property name="valign">center</property>
-            <property name="orientation">vertical</property>
-            <property name="spacing">10</property>
-            <child>
-              <object class="GtkImage">
-                <property name="visible">True</property>
-                <property name="can-focus">False</property>
-                <property name="margin-top">60</property>
-                <property name="pixbuf">static\imagens\menu250.png</property>
-                <property name="pixel-size">100</property>
-              </object>
-              <packing>
-                <property name="expand">False</property>
-                <property name="fill">True</property>
-                <property name="position">0</property>
-              </packing>
-            </child>
-            <child>
-              <object class="GtkLabel">
-                <property name="visible">True</property>
-                <property name="can-focus">False</property>
-                <property name="margin-bottom">40</property>
-                <property name="label" translatable="yes">Menu Principal</property>
-                <attributes>
-                  <attribute name="weight" value="bold"/>
-                  <attribute name="scale" value="2"/>
-                </attributes>
-              </object>
-              <packing>
-                <property name="expand">False</property>
-                <property name="fill">True</property>
-                <property name="position">1</property>
-              </packing>
-            </child>
-            <child>
-              <object class="GtkBox">
-                <property name="visible">True</property>
-                <property name="can-focus">False</property>
-                <property name="halign">center</property>
-                <property name="valign">center</property>
-                <property name="spacing">40</property>
-                <child>
-                  <object class="GtkButton" id="menu_atualizar_dados">
-                    <property name="label" translatable="yes"> Atualização de Residuos</property>
-                    <property name="visible">True</property>
-                    <property name="can-focus">True</property>
-                    <property name="receives-default">True</property>
-                    <property name="margin-start">3</property>
-                    <property name="image">image7</property>
-                    <property name="always-show-image">True</property>
-                    <signal name="clicked" handler="on_menu_atualizar_dados_clicked" swapped="no"/>
-                  </object>
-                  <packing>
-                    <property name="expand">False</property>
-                    <property name="fill">True</property>
-                    <property name="position">0</property>
-                  </packing>
-                </child>
-                <child>
-                  <object class="GtkButton" id="botao_relatorios">
-                    <property name="label" translatable="yes">Relatórios                </property>
-                    <property name="visible">True</property>
-                    <property name="can-focus">True</property>
-                    <property name="receives-default">True</property>
-                    <property name="halign">center</property>
-                    <property name="valign">center</property>
-                    <property name="hexpand">False</property>
-                    <property name="image">image5</property>
-                    <property name="always-show-image">True</property>
-                    <signal name="clicked" handler="on_botao_relatorios_clicked" swapped="no"/>
-                  </object>
-                  <packing>
-                    <property name="expand">False</property>
-                    <property name="fill">True</property>
-                    <property name="position">1</property>
-                  </packing>
-                </child>
-              </object>
-              <packing>
-                <property name="expand">False</property>
-                <property name="fill">True</property>
-                <property name="position">2</property>
-              </packing>
-            </child>
-            <child>
-              <object class="GtkBox">
-                <property name="visible">True</property>
-                <property name="can-focus">False</property>
-                <property name="halign">center</property>
-                <property name="valign">center</property>
-                <property name="spacing">40</property>
-                <child>
-                  <object class="GtkButton" id="cadastro_de_industria">
-                    <property name="label" translatable="yes">Cadastrar Indústria      </property>
-                    <property name="visible">True</property>
-                    <property name="can-focus">True</property>
-                    <property name="receives-default">True</property>
-                    <property name="image">image4</property>
-                    <property name="always-show-image">True</property>
-                    <signal name="clicked" handler="on_cadastro_de_industria_clicked" swapped="no"/>
-                  </object>
-                  <packing>
-                    <property name="expand">False</property>
-                    <property name="fill">True</property>
-                    <property name="position">0</property>
-                  </packing>
-                </child>
-                <child>
-                  <object class="GtkButton" id="cadastro_de_usuario">
-                    <property name="label" translatable="yes">Cadastro de usuário    </property>
-                    <property name="visible">True</property>
-                    <property name="can-focus">True</property>
-                    <property name="receives-default">True</property>
-                    <property name="image">image6</property>
-                    <property name="always-show-image">True</property>
-                    <signal name="clicked" handler="on_cadastro_de_usuario_clicked" swapped="no"/>
-                  </object>
-                  <packing>
-                    <property name="expand">False</property>
-                    <property name="fill">True</property>
-                    <property name="position">1</property>
-                  </packing>
-                </child>
-              </object>
-              <packing>
-                <property name="expand">False</property>
-                <property name="fill">True</property>
-                <property name="position">3</property>
-              </packing>
-            </child>
-            <child>
-              <object class="GtkButton" id="menu_sair">
-                <property name="label" translatable="yes">Sair</property>
-                <property name="visible">True</property>
-                <property name="can-focus">True</property>
-                <property name="receives-default">True</property>
-                <property name="halign">center</property>
-                <property name="margin-top">50</property>
-                <property name="image">image8</property>
-                <property name="always-show-image">True</property>
-                <signal name="clicked" handler="on_menu_sair_clicked" swapped="no"/>
-              </object>
-              <packing>
-                <property name="expand">False</property>
-                <property name="fill">True</property>
-                <property name="position">4</property>
-              </packing>
-            </child>
-            <child>
-              <object class="GtkLabel">
-                <property name="visible">True</property>
-                <property name="can-focus">False</property>
-                <property name="opacity">0.5</property>
-                <property name="halign">center</property>
-                <property name="margin-top">10</property>
-                <property name="label" translatable="yes">GreenFlow - 2024</property>
-              </object>
-              <packing>
-                <property name="expand">False</property>
-                <property name="fill">True</property>
-                <property name="position">5</property>
-              </packing>
-            </child>
-          </object>
-          <packing>
-            <property name="name">view_menu_principal</property>
-            <property name="title" translatable="yes">view_menu_principal</property>
             <property name="position">2</property>
           </packing>
         </child>
@@ -645,7 +644,7 @@
                   <object class="GtkImage">
                     <property name="visible">True</property>
                     <property name="can-focus">False</property>
-                    <property name="pixbuf">static\imagens\cadastro_industria100.png</property>
+                    <property name="pixbuf">static\imagens\cadastro_industria85.png</property>
                     <property name="pixel-size">100</property>
                   </object>
                   <packing>
